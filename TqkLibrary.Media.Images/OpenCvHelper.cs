@@ -41,23 +41,29 @@ namespace TqkLibrary.Media.Images
       return resPoint;
     }
 
-    public static Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle cropMain, double percent = 0.9)
+    public static Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle crop, double percent = 0.9)
     {
       if (subBitmap == null || mainBitmap == null)
         return null;
       if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
         return null;
 
-      using Bitmap bm_crop = mainBitmap.CropImage(cropMain);
+      using Bitmap bm_crop = mainBitmap.CropImage(crop);
       Point? point = FindOutPoint(bm_crop, subBitmap, percent);
       if (point != null)
       {
-        Point subpoint = point.Value;
-        subpoint.X += cropMain.X + subBitmap.Width /2;
-        subpoint.Y += cropMain.Y + subBitmap.Height / 2;
+        Point subpoint = point.Value;//that was center crop
+        subpoint.X += crop.X;
+        subpoint.Y += crop.Y;
         point = subpoint;
       }
       return point;
+    }
+
+    public static Point? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop, double percent = 0.9)
+    {
+      if (crop == null) return FindOutPoint(mainBitmap, subBitmap, percent);
+      else return FindOutPoint(mainBitmap, subBitmap, crop.Value, percent);
     }
 
     public static List<Point> FindOutPoints(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
@@ -97,14 +103,19 @@ namespace TqkLibrary.Media.Images
       List<Point> points = FindOutPoints(bm_crop, subBitmap, percent);
       for (int i = 0; i < points.Count; i++)
       {
-        Point temp = points[i];
-        temp.X += crop.X + subBitmap.Width / 2;
-        temp.Y += crop.Y + subBitmap.Height / 2;
+        Point temp = points[i];//that was center crop
+        temp.X += crop.X;
+        temp.Y += crop.Y;
         points[i] = temp;
       }
       return points;
     }
 
+    public static List<Point> FindOutPoints(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop, double percent = 0.9)
+    {
+      if (crop == null) return FindOutPoints(mainBitmap, subBitmap, percent);
+      else return FindOutPoints(mainBitmap, subBitmap, crop.Value, percent);
+    }
     //public static Bitmap CropNonTransparent(Bitmap bitmap)
     //{
     //  using Image<Bgra, byte> imageIn = bitmap.ToImage<Bgra, byte>();
