@@ -8,162 +8,198 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Images
 {
-  public delegate void TapCallback(Point point);
-  public class WaitImageHelper : IDisposable
-  {
-    public double Percent { get; set; } = 0.9;
-    public int Timeout { get; set; } = 60000;
-    public CancellationTokenSource CancellationTokenSource { get; }
-    internal readonly Func<Bitmap> image;
-    internal readonly Func<string, int, Bitmap> find;
-    internal readonly TapCallback tap;
-    internal readonly Random random = new Random(DateTime.Now.Millisecond);
-    public WaitImageHelper(Func<Bitmap> image, Func<string, int, Bitmap> find, TapCallback tap)
+    public class WaitImageHelper : IDisposable
     {
-      this.image = image ?? throw new ArgumentNullException(nameof(image));
-      this.find = find ?? throw new ArgumentNullException(nameof(find));
-      this.tap = tap ?? throw new ArgumentNullException(nameof(tap));
-      CancellationTokenSource = new CancellationTokenSource();
-    }
+        public event Action<string> LogCallback;
+        internal Func<Bitmap> Capture { get; }
+        internal Func<string, int, Bitmap> Find { get; }
+        internal Func<double> Percent { get; }
+        internal Func<int> Timeout { get; }
+        internal Func<string, Rectangle?> Crop { get; }
+        public CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
 
-    public WaitImageBuilder WaitUntil(params string[] finds)
-    {
-      return new WaitImageBuilder(this, finds);
-    }
-
-    public void Dispose()
-    {
-      CancellationTokenSource.Dispose();
-    }
-  }
-  internal enum TapFlag
-  {
-    None,
-    First,
-    Random,
-    All
-  }
-
-  public class WaitImageBuilder
-  {
-    internal readonly WaitImageHelper waitImageHelper;
-    internal WaitImageBuilder(WaitImageHelper waitImageHelper, params string[] finds)
-    {
-      this.finds = finds ?? throw new ArgumentNullException(nameof(finds));
-      if(finds.Length == 0) throw new ArgumentNullException(nameof(finds));
-      this.waitImageHelper = waitImageHelper;
-    }
-    internal readonly string[] finds;
-    internal bool IsTap = false;
-    internal TapFlag tapflag = TapFlag.None;
-    internal bool IsThrow = false;
-    internal bool IsAny = true;
-
-    public WaitImageBuilder AndTapFirst()
-    {
-      IsAny = true;
-      IsTap = true;
-      tapflag = TapFlag.First;
-      return this;
-    }
-
-    public WaitImageBuilder AndTapRandom()
-    {
-      IsAny = false;
-      IsTap = true;
-      tapflag = TapFlag.Random;
-      return this;
-    }
-    public WaitImageBuilder AndTapAll()
-    {
-      IsAny = false;
-      IsTap = true;
-      tapflag = TapFlag.All;
-      return this;
-    }
-
-    public WaitImageBuilder WithThrow()
-    {
-      IsThrow = true;
-      return this;
-    }
-
-    public WaitImageResult Build()
-    {
-      return new WaitImageResult(this).Start();
-    }
-  }
-
-  public class WaitImageResult
-  {
-    readonly WaitImageBuilder waitImageBuilder;
-    internal WaitImageResult(WaitImageBuilder waitImageBuilder)
-    {
-      this.waitImageBuilder = waitImageBuilder;
-    }
-    public int IndexArg { get; private set; } = -1;
-    internal WaitImageResult Start()
-    {
-      using(CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(waitImageBuilder.waitImageHelper.Timeout))
-      {
-        while (!cancellationTokenSource.IsCancellationRequested)
+        internal readonly Random random = new Random(DateTime.Now.Millisecond);
+        internal void WriteLog(string text)
         {
-          waitImageBuilder.waitImageHelper.CancellationTokenSource.Token.ThrowIfCancellationRequested();
-          using Bitmap image = waitImageBuilder.waitImageHelper.image.Invoke();
-          List<Point> points = new List<Point>();
-          for (int i = 0; i < waitImageBuilder.finds.Length; i++)
-          {
-            for (int j = 0; ; j++)
-            {
-              using Bitmap find = waitImageBuilder.waitImageHelper.find(waitImageBuilder.finds[i], j);
-              if (find == null) break;
-              if (waitImageBuilder.IsAny)
-              {
-                Point? point = OpenCvHelper.FindOutPoint(image, find, waitImageBuilder.waitImageHelper.Percent);
-                if (point != null)
-                {
-                  IndexArg = i;
-                  return Tap(point.Value);
-                }
-              }
-              else
-              {
-                points.AddRange(OpenCvHelper.FindOutPoints(image, find, waitImageBuilder.waitImageHelper.Percent));
-              }
-            }
-          }
-
-          if (!waitImageBuilder.IsAny && points.Count > 0) 
-            switch (waitImageBuilder.tapflag)
-            {
-              case TapFlag.All:
-                {
-                  foreach(var point in points) Tap(point);
-                  return this;
-                }
-              case TapFlag.Random:
-                {
-                  return Tap(points[waitImageBuilder.waitImageHelper.random.Next(points.Count)]);
-                }
-            }
+            LogCallback?.Invoke(text);
         }
-      }
-      if (waitImageBuilder.IsThrow) throw new WaitImageTimeoutException(string.Join("|", waitImageBuilder.finds));
-      return this;
+        public WaitImageHelper(
+            Func<Bitmap> capture,
+            Func<string, int, Bitmap> find,
+            Func<string, Rectangle?> crop,
+            Func<double> percent,
+            Func<int> timeout)
+        {
+            this.Capture = capture ?? throw new ArgumentNullException(nameof(capture));
+            this.Find = find ?? throw new ArgumentNullException(nameof(find));
+            this.Crop = crop ?? throw new ArgumentNullException(nameof(crop));
+            this.Percent = percent ?? throw new ArgumentNullException(nameof(percent));
+            this.Timeout = timeout ?? throw new ArgumentNullException(nameof(timeout));
+        }
+        ~WaitImageHelper()
+        {
+            CancellationTokenSource.Dispose();
+        }
+
+        public WaitImageBuilder WaitUntil(params string[] finds)
+        {
+            return new WaitImageBuilder(this, finds);
+        }
+        public WaitImageBuilder FindImage(params string[] finds)
+        {
+            return new WaitImageBuilder(this, finds) { IsLoop = false };
+        }
+
+
+        public void Dispose()
+        {
+            CancellationTokenSource.Dispose();
+            GC.SuppressFinalize(this);
+        }
     }
-
-
-    private WaitImageResult Tap(Point point)
+    internal enum TapFlag
     {
-      waitImageBuilder.waitImageHelper.tap?.Invoke(point);
-      return this;
+        None,
+        First,
+        Random,
+        All
     }
 
-    public class WaitImageTimeoutException: Exception
+    public class WaitImageBuilder
     {
-      internal WaitImageTimeoutException(string message) : base(message)
-      {
-      }
+        internal readonly WaitImageHelper waitImageHelper;
+        internal WaitImageBuilder(WaitImageHelper waitImageHelper, params string[] finds)
+        {
+            this.Finds = finds ?? throw new ArgumentNullException(nameof(finds));
+            if (finds.Length == 0) throw new ArgumentNullException(nameof(finds));
+            this.waitImageHelper = waitImageHelper;
+        }
+
+        internal string[] Finds { get; }
+        internal TapFlag Tapflag { get; private set; } = TapFlag.None;
+        internal bool IsThrow { get; private set; } = false;
+        internal bool IsFirst { get; private set; } = true;
+        internal bool IsLoop { get; set; } = true;
+        internal Action<int, Point> TapCallback { get; private set; } = null;
+
+        public WaitImageBuilder AndTapFirst(Action<int, Point> tapCallback)
+        {
+            this.TapCallback = tapCallback ?? throw new ArgumentNullException(nameof(tapCallback));
+            IsFirst = true;
+            Tapflag = TapFlag.First;
+            return this;
+        }
+
+        public WaitImageBuilder AndTapRandom(Action<int, Point> tapCallback)
+        {
+            this.TapCallback = tapCallback ?? throw new ArgumentNullException(nameof(tapCallback));
+            IsFirst = false;
+            Tapflag = TapFlag.Random;
+            return this;
+        }
+        public WaitImageBuilder AndTapAll(Action<int, Point> tapCallback)
+        {
+            this.TapCallback = tapCallback ?? throw new ArgumentNullException(nameof(tapCallback));
+            IsFirst = false;
+            Tapflag = TapFlag.All;
+            return this;
+        }
+
+        public WaitImageBuilder WithThrow()
+        {
+            IsThrow = true;
+            return this;
+        }
+
+        public WaitImageResult Build()
+        {
+            return new WaitImageResult(this).Start();
+        }
     }
-  }
+
+    public class WaitImageResult
+    {
+        public int IndexArg { get; private set; } = -1;
+        public Point? Point { get { return _points.FirstOrDefault(); } }
+        public IEnumerable<Point> Points { get { return _points; } }
+
+
+
+        readonly List<Point> _points = new List<Point>();
+        readonly WaitImageBuilder waitImageBuilder;
+        internal WaitImageResult(WaitImageBuilder waitImageBuilder)
+        {
+            this.waitImageBuilder = waitImageBuilder;
+        }
+
+        internal WaitImageResult Start()
+        {
+            waitImageBuilder.waitImageHelper.WriteLog((waitImageBuilder.IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", waitImageBuilder.Finds));
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(waitImageBuilder.waitImageHelper.Timeout.Invoke()))
+            {
+                while (!cancellationTokenSource.IsCancellationRequested)
+                {
+                    waitImageBuilder.waitImageHelper.CancellationTokenSource.Token.ThrowIfCancellationRequested();
+                    using Bitmap image = waitImageBuilder.waitImageHelper.Capture.Invoke();
+                    if (image == null) throw new NullReferenceException(nameof(image));
+                    for (int i = 0; i < waitImageBuilder.Finds.Length; i++)
+                    {
+                        for (int j = 0; ; j++)
+                        {
+                            using Bitmap find = waitImageBuilder.waitImageHelper.Find?.Invoke(waitImageBuilder.Finds[i], j);
+                            if (find == null) break;
+                            Rectangle? crop = waitImageBuilder.waitImageHelper.Crop?.Invoke(waitImageBuilder.Finds[i]);
+                            if (waitImageBuilder.IsFirst)
+                            {
+                                Point? point = OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
+                                if (point != null)
+                                {
+                                    IndexArg = i;
+                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j}");
+                                    return Tap(i, point.Value);
+                                }
+                            }
+                            else
+                            {
+                                var points = OpenCvHelper.FindOutPoints(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
+                                waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j} {points.Count} points");
+                                _points.AddRange(points);
+                            }
+                        }
+                        if (!waitImageBuilder.IsLoop) break;
+                    }
+
+                    if (!waitImageBuilder.IsFirst && _points.Count > 0)
+                        switch (waitImageBuilder.Tapflag)
+                        {
+                            case TapFlag.All:
+                                {
+
+                                    foreach (var point in _points) Tap(-1, point);
+                                    return this;
+                                }
+                            case TapFlag.Random:
+                                {
+                                    return Tap(-1, _points[waitImageBuilder.waitImageHelper.random.Next(_points.Count)]);
+                                }
+                        }
+                }
+            }
+            if (waitImageBuilder.IsThrow) throw new WaitImageTimeoutException(string.Join("|", waitImageBuilder.Finds));
+            return this;
+        }
+
+
+        private WaitImageResult Tap(int index, Point point)
+        {
+            waitImageBuilder.TapCallback?.Invoke(index, point);
+            return this;
+        }
+    }
+    public class WaitImageTimeoutException : Exception
+    {
+        internal WaitImageTimeoutException(string message) : base(message)
+        {
+        }
+    }
 }
