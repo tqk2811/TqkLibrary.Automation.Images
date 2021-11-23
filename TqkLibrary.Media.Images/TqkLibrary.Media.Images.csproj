@@ -1,41 +1,43 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFrameworks>net462;net5.0;net5.0-windows;net6.0;net6.0-windows</TargetFrameworks>
-    <LangVersion Condition="!$(TargetFramework.StartsWith('net6'))">8.0</LangVersion>
-    <LangVersion Condition="$(TargetFramework.StartsWith('net6'))">10.0</LangVersion>
-    <Platforms>AnyCPU</Platforms>
-    <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>Key.pfx</AssemblyOriginatorKeyFile>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFrameworks>net462;net5.0;net5.0-windows;net6.0;net6.0-windows</TargetFrameworks>
+		<LangVersion Condition="!$(TargetFramework.StartsWith('net6'))">8.0</LangVersion>
+		<LangVersion Condition="$(TargetFramework.StartsWith('net6'))">10.0</LangVersion>
+		<Platforms>AnyCPU</Platforms>
+		<SignAssembly>true</SignAssembly>
+		<AssemblyOriginatorKeyFile>Key.pfx</AssemblyOriginatorKeyFile>
+		<CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+	</PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
+	<PropertyGroup Condition="'$(Configuration)|$(TargetFramework)|$(Platform)'=='Release|net462|AnyCPU'">
+		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <Folder Include="x64\" />
-    <Folder Include="x86\" />
-  </ItemGroup>
+	<ItemGroup>
+		<Folder Include="x64\" />
+		<Folder Include="x86\" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x64\native\cvextern.dll" Link="x64\cvextern.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x64\native\opencv_videoio_ffmpeg454_64.dll" Link="x64\opencv_videoio_ffmpeg454_64.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x86\native\cvextern.dll" Link="x86\cvextern.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x86\native\opencv_videoio_ffmpeg454.dll" Link="x86\opencv_videoio_ffmpeg454.dll">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
+	<ItemGroup>
+		<None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x64\native\cvextern.dll" Link="x64\cvextern.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x64\native\opencv_videoio_ffmpeg454_64.dll" Link="x64\opencv_videoio_ffmpeg454_64.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x86\native\cvextern.dll" Link="x86\cvextern.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+		<None Include="..\..\..\..\..\..\lib\Opencv\emgu.cv.runtime.windows.4.5.4.4788\runtimes\win-x86\native\opencv_videoio_ffmpeg454.dll" Link="x86\opencv_videoio_ffmpeg454.dll">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</None>
+	</ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="Emgu.CV" Version="4.5.4.4788" />
-    <PackageReference Include="Emgu.CV.Bitmap" Version="4.5.4.4788" />
-  </ItemGroup>
+	<ItemGroup>
+		<PackageReference Include="Emgu.CV" Version="4.5.4.4788" />
+		<PackageReference Include="Emgu.CV.Bitmap" Version="4.5.4.4788" />
+		<PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+	</ItemGroup>
 
 </Project>
