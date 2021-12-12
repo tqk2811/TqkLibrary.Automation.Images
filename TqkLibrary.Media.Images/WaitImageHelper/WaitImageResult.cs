@@ -40,7 +40,7 @@ namespace TqkLibrary.Media.Images
                                 if (point != null)
                                 {
                                     _points.Add(new Tuple<int, Point>(i, point.Value));
-                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j}");
+                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j} {point.Value}");
 
                                     if (Tap(i, point.Value, waitImageBuilder.Finds))
                                     {
@@ -55,8 +55,11 @@ namespace TqkLibrary.Media.Images
                             else
                             {
                                 var points = OpenCvHelper.FindOutPoints(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
-                                waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j} {points.Count} points");
-                                _points.AddRange(points.Select(x => new Tuple<int, Point>(i, x)));
+                                if(points.Count > 0)
+                                {
+                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j} {points.Count} points ({string.Join("|",points)})");
+                                    _points.AddRange(points.Select(x => new Tuple<int, Point>(i, x)));
+                                }
                             }
 
                         }
@@ -93,7 +96,7 @@ namespace TqkLibrary.Media.Images
                     }
 
                     if (!waitImageBuilder.IsLoop) break;
-                    Task.Delay(waitImageBuilder.waitImageHelper.DelayStep).Wait();
+                    Task.Delay(waitImageBuilder.waitImageHelper.DelayStep).Wait(waitImageBuilder.waitImageHelper.CancellationTokenSource.Token);
                 }
             }
             if (waitImageBuilder.IsThrow) throw new WaitImageTimeoutException(string.Join("|", waitImageBuilder.Finds));
@@ -103,7 +106,7 @@ namespace TqkLibrary.Media.Images
 
         private bool Tap(int index, Point point, string[] finds)
         {
-            return waitImageBuilder.TapCallback.Invoke(index, point, finds);
+            return waitImageBuilder.TapCallback?.Invoke(index, point, finds) == true;
         }
     }
 }
