@@ -7,7 +7,7 @@
 		<description>my private lib</description>
 		<authors>tqk2811</authors>
 		<projectUrl>https://github.com/tqk2811/TqkLibrary.Media.Images</projectUrl>
-		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.Media.Images.git" branch="$branch$" commit="$commit$"/>
+		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.Media.Images.git"/>
 		<dependencies>
 			<dependency id="Emgu.CV" version="4.5.4.4788" />
 			<dependency id="Emgu.CV.Bitmap" version="4.5.4.4788" />
