@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Drawing;
+using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Images
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class WaitImageBuilder
     {
         internal readonly WaitImageHelper waitImageHelper;
@@ -71,16 +75,32 @@ namespace TqkLibrary.Media.Images
             Tapflag = TapFlag.All;
             return this;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public WaitImageBuilder WithThrow()
         {
             IsThrow = true;
             return this;
         }
 
-        public WaitImageResult Build()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public WaitImageResult Start()
         {
             return new WaitImageResult(this).Start();
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
+        public Task<WaitImageResult> StartAsync()
+        {
+            return new WaitImageResult(this).StartAsync();
         }
     }
 }
