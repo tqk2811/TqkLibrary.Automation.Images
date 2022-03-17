@@ -8,15 +8,28 @@ using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Images
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class WaitImageHelper : IDisposable
     {
+        /// <summary>
+        /// Default 500
+        /// </summary>
         public int DelayStep { get; set; } = 500;
+        /// <summary>
+        /// 
+        /// </summary>
         public event Action<string> LogCallback;
         internal Func<Bitmap> Capture { get; }
         internal Func<string, int, Bitmap> Find { get; }
         internal Func<double> Percent { get; }
         internal Func<int> Timeout { get; }
         internal Func<string, Rectangle?> Crop { get; }
+
+        /// <summary>
+        /// 
+        /// </summary>
         public CancellationTokenSource CancellationTokenSource { get; } = new CancellationTokenSource();
 
         internal readonly Random random = new Random(DateTime.Now.Millisecond);
@@ -24,6 +37,15 @@ namespace TqkLibrary.Media.Images
         {
             LogCallback?.Invoke(text);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="capture"></param>
+        /// <param name="find"></param>
+        /// <param name="crop"></param>
+        /// <param name="percent"></param>
+        /// <param name="timeout"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public WaitImageHelper(
             Func<Bitmap> capture,
             Func<string, int, Bitmap> find,
@@ -37,25 +59,40 @@ namespace TqkLibrary.Media.Images
             this.Percent = percent ?? throw new ArgumentNullException(nameof(percent));
             this.Timeout = timeout ?? throw new ArgumentNullException(nameof(timeout));
         }
+        /// <summary>
+        /// 
+        /// </summary>
         ~WaitImageHelper()
         {
             CancellationTokenSource.Dispose();
         }
-
-        public WaitImageBuilder WaitUntil(params string[] finds)
-        {
-            return new WaitImageBuilder(this, finds);
-        }
-        public WaitImageBuilder FindImage(params string[] finds)
-        {
-            return new WaitImageBuilder(this, finds) { IsLoop = false };
-        }
-
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             CancellationTokenSource.Dispose();
             GC.SuppressFinalize(this);
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="finds"></param>
+        /// <returns></returns>
+        public WaitImageBuilder WaitUntil(params string[] finds)
+        {
+            return new WaitImageBuilder(this, finds);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="finds"></param>
+        /// <returns></returns>
+        public WaitImageBuilder FindImage(params string[] finds)
+        {
+            return new WaitImageBuilder(this, finds) { IsLoop = false };
+        }
+
     }
 }

@@ -22,8 +22,21 @@ namespace TqkLibrary.Media.Images
         internal bool IsThrow { get; private set; } = false;
         internal bool IsFirst { get; private set; } = true;
         internal bool IsLoop { get; set; } = true;
-        internal Func<int, Point, string[], bool> TapCallback { get; private set; } = null;
 
+
+        private Func<int, Point, string[], bool> _TapCallback = null;
+        internal Func<int, Point, string[], bool> TapCallback
+        {
+            get { return _TapCallback; }
+            private set { _TapCallback = value; _TapCallbackAsync = null; }
+        }
+
+        private Func<int, Point, string[], Task<bool>> _TapCallbackAsync = null;
+        internal Func<int, Point, string[], Task<bool>> TapCallbackAsync
+        {
+            get { return _TapCallbackAsync; }
+            private set { _TapCallbackAsync = value; _TapCallback = null; }
+        }
 
         /// <summary>
         /// 
@@ -37,6 +50,19 @@ namespace TqkLibrary.Media.Images
         public WaitImageBuilder AndTapFirst(Func<int, Point, string[], bool> tapCallback)
         {
             this.TapCallback = tapCallback ?? throw new ArgumentNullException(nameof(tapCallback));
+            IsFirst = true;
+            Tapflag = TapFlag.First;
+            return this;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tapCallbackAsync"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder AndTapFirst(Func<int, Point, string[], Task<bool>> tapCallbackAsync)
+        {
+            this.TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
             IsFirst = true;
             Tapflag = TapFlag.First;
             return this;
@@ -58,7 +84,19 @@ namespace TqkLibrary.Media.Images
             Tapflag = TapFlag.Random;
             return this;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tapCallbackAsync"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder AndTapRandom(Func<int, Point, string[], Task<bool>> tapCallbackAsync)
+        {
+            this.TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
+            IsFirst = false;
+            Tapflag = TapFlag.Random;
+            return this;
+        }
         /// <summary>
         /// 
         /// </summary>
@@ -78,20 +116,24 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="tapCallbackAsync"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder AndTapAll(Func<int, Point, string[], Task<bool>> tapCallbackAsync)
+        {
+            this.TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
+            IsFirst = false;
+            Tapflag = TapFlag.All;
+            return this;
+        }
+        /// <summary>
+        /// 
+        /// </summary>
         /// <returns></returns>
         public WaitImageBuilder WithThrow()
         {
             IsThrow = true;
             return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public WaitImageResult Start()
-        {
-            return new WaitImageResult(this).Start();
         }
 
         /// <summary>
