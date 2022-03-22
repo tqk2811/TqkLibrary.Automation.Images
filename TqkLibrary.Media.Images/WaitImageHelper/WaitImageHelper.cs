@@ -21,6 +21,10 @@ namespace TqkLibrary.Media.Images
         /// 
         /// </summary>
         public event Action<string> LogCallback;
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool FindInThreadPool { get; set; } = false;
         internal Func<Bitmap> Capture { get; }
         internal Func<string, int, Bitmap> Find { get; }
         internal Func<double> Percent { get; }

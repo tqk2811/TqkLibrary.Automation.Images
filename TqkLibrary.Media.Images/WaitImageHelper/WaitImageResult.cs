@@ -42,7 +42,9 @@ namespace TqkLibrary.Media.Images
                             Rectangle? crop = waitImageBuilder.waitImageHelper.Crop?.Invoke(waitImageBuilder.Finds[i]);
                             if (waitImageBuilder.IsFirst)
                             {
-                                Point? point = OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
+                                Point? point = null;
+                                if (waitImageBuilder.waitImageHelper.FindInThreadPool) point = await Task.Run(() => OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke()));
+                                else point = OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
                                 if (point != null)
                                 {
                                     _points.Add(new Tuple<int, Point>(i, point.Value));
@@ -123,7 +125,7 @@ namespace TqkLibrary.Media.Images
             }
             else if (waitImageBuilder.TapCallbackAsync != null)
             {
-                return await waitImageBuilder.TapCallbackAsync.Invoke(index, point, finds);
+                return await waitImageBuilder.TapCallbackAsync.Invoke(index, point, finds).ConfigureAwait(false);
             }
             return false;
         }
