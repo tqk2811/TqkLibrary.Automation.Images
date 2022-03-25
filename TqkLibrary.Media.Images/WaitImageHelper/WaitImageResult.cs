@@ -109,6 +109,7 @@ namespace TqkLibrary.Media.Images
                     }
 
                     if (!waitImageBuilder.IsLoop) break;
+                    await DoAsync();
                     await Task.Delay(waitImageBuilder.waitImageHelper.DelayStep, waitImageBuilder.waitImageHelper.CancellationTokenSource.Token);
                 }
             }
@@ -128,6 +129,18 @@ namespace TqkLibrary.Media.Images
                 return await waitImageBuilder.TapCallbackAsync.Invoke(index, point, finds).ConfigureAwait(false);
             }
             return false;
+        }
+
+        private async Task DoAsync()
+        {
+            if (waitImageBuilder.Work != null)
+            {
+                waitImageBuilder.Work.Invoke();
+            }
+            else if (waitImageBuilder.WorkAsync != null)
+            {
+                await waitImageBuilder.WorkAsync.Invoke().ConfigureAwait(false);
+            }
         }
     }
 }

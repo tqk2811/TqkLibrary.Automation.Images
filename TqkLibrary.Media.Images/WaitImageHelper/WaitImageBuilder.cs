@@ -38,6 +38,21 @@ namespace TqkLibrary.Media.Images
             private set { _TapCallbackAsync = value; _TapCallback = null; }
         }
 
+
+        Func<Task> _WorkAsync = null;
+        internal Func<Task> WorkAsync
+        {
+            get { return _WorkAsync; }
+            private set { _WorkAsync = value; _Work = null; }
+        }
+
+        Action _Work = null;
+        internal Action Work
+        {
+            get { return _Work; }
+            private set { _Work = value; _WorkAsync = null; }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -126,6 +141,31 @@ namespace TqkLibrary.Media.Images
             Tapflag = TapFlag.All;
             return this;
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="workAsync"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder Do(Func<Task> workAsync)
+        {
+            this.WorkAsync = workAsync ?? throw new ArgumentNullException(nameof(workAsync));
+            return this;
+        }
+        
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="work"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder Do(Action work)
+        {
+            this.Work = work ?? throw new ArgumentNullException(nameof(work));
+            return this;
+        }
+        
         /// <summary>
         /// 
         /// </summary>
