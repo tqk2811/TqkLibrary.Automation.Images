@@ -26,7 +26,8 @@ namespace TqkLibrary.Media.Images
         /// </summary>
         public bool FindInThreadPool { get; set; } = false;
         internal Func<Bitmap> Capture { get; }
-        internal Func<string, int, Bitmap> Find { get; }
+        internal Func<string, int, Bitmap> ImageFind { get; }
+        internal  Func<IEnumerable<string>> GlobalImageNameFind { get; }
         internal Func<double> Percent { get; }
         internal Func<int> Timeout { get; }
         internal Func<string, Rectangle?> Crop { get; }
@@ -45,23 +46,26 @@ namespace TqkLibrary.Media.Images
         /// 
         /// </summary>
         /// <param name="capture"></param>
-        /// <param name="find"></param>
+        /// <param name="imgFind"></param>
         /// <param name="crop"></param>
+        /// <param name="globalImageNameFind"></param>
         /// <param name="percent"></param>
         /// <param name="timeout"></param>
         /// <exception cref="ArgumentNullException"></exception>
         public WaitImageHelper(
             Func<Bitmap> capture,
-            Func<string, int, Bitmap> find,
+            Func<string, int, Bitmap> imgFind,
             Func<string, Rectangle?> crop,
+            Func<IEnumerable<string>> globalImageNameFind,
             Func<double> percent,
             Func<int> timeout)
         {
             this.Capture = capture ?? throw new ArgumentNullException(nameof(capture));
-            this.Find = find ?? throw new ArgumentNullException(nameof(find));
+            this.ImageFind = imgFind ?? throw new ArgumentNullException(nameof(imgFind));
             this.Crop = crop ?? throw new ArgumentNullException(nameof(crop));
             this.Percent = percent ?? throw new ArgumentNullException(nameof(percent));
             this.Timeout = timeout ?? throw new ArgumentNullException(nameof(timeout));
+            this.GlobalImageNameFind = globalImageNameFind ?? throw new ArgumentNullException(nameof(globalImageNameFind));
         }
         /// <summary>
         /// 

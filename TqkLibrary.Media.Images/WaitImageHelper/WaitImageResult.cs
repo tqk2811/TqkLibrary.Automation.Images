@@ -15,8 +15,8 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<Tuple<int, Point>> Points { get { return _points; } }
-        readonly List<Tuple<int, Point>> _points = new List<Tuple<int, Point>>();
+        public IEnumerable<Tuple<int, OpenCvFindResult>> Points { get { return _points; } }
+        readonly List<Tuple<int, OpenCvFindResult>> _points = new List<Tuple<int, OpenCvFindResult>>();
         readonly WaitImageBuilder waitImageBuilder;
         internal WaitImageResult(WaitImageBuilder waitImageBuilder)
         {
@@ -25,7 +25,12 @@ namespace TqkLibrary.Media.Images
 
         internal async Task<WaitImageResult> StartAsync()
         {
-            waitImageBuilder.waitImageHelper.WriteLog((waitImageBuilder.IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", waitImageBuilder.Finds));
+            var advFinds = waitImageBuilder.waitImageHelper.GlobalImageNameFind?.Invoke();
+            var _finds = waitImageBuilder.Finds.ToList();
+            if (advFinds != null) _finds.AddRange(advFinds);
+            var finds = _finds.ToArray();
+
+            waitImageBuilder.waitImageHelper.WriteLog((waitImageBuilder.IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", finds));
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(waitImageBuilder.waitImageHelper.Timeout.Invoke()))
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
@@ -33,29 +38,29 @@ namespace TqkLibrary.Media.Images
                     waitImageBuilder.waitImageHelper.CancellationTokenSource.Token.ThrowIfCancellationRequested();
                     using Bitmap image = waitImageBuilder.waitImageHelper.Capture.Invoke();
                     if (image == null) throw new NullReferenceException(nameof(image));
-                    for (int i = 0; i < waitImageBuilder.Finds.Length; i++)
+                    for (int i = 0; i < finds.Length; i++)
                     {
                         for (int j = 0; ; j++)
                         {
-                            using Bitmap find = waitImageBuilder.waitImageHelper.Find?.Invoke(waitImageBuilder.Finds[i], j);
+                            using Bitmap find = waitImageBuilder.waitImageHelper.ImageFind?.Invoke(finds[i], j);
                             if (find == null) break;
-                            Rectangle? crop = waitImageBuilder.waitImageHelper.Crop?.Invoke(waitImageBuilder.Finds[i]);
+                            Rectangle? crop = waitImageBuilder.waitImageHelper.Crop?.Invoke(finds[i]);
                             if (waitImageBuilder.IsFirst)
                             {
-                                Point? point = null;
-                                if (waitImageBuilder.waitImageHelper.FindInThreadPool) point = await Task.Run(() => OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke()));
-                                else point = OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
-                                if (point != null)
+                                OpenCvFindResult result = null;
+                                if (waitImageBuilder.waitImageHelper.FindInThreadPool) result = await Task.Run(() => OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke()));
+                                else result = OpenCvHelper.FindOutPoint(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
+                                if (result != null)
                                 {
-                                    _points.Add(new Tuple<int, Point>(i, point.Value));
-                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j} {point.Value}");
+                                    _points.Add(new Tuple<int, OpenCvFindResult>(i, result));
+                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {finds[i]}{j} {result}");
 
-                                    if (await TapAsync(i, point.Value, waitImageBuilder.Finds))
+                                    if (await TapAsync(i, result, finds))
                                     {
                                         //reset to while
                                         cancellationTokenSource.CancelAfter(waitImageBuilder.waitImageHelper.Timeout.Invoke());
-                                        i = waitImageBuilder.Finds.Length;
-                                        break;
+                                        i = finds.Length;//break i
+                                        break;//break j
                                     }
                                     else return this;
                                 }
@@ -65,8 +70,8 @@ namespace TqkLibrary.Media.Images
                                 var points = OpenCvHelper.FindOutPoints(image, find, crop, waitImageBuilder.waitImageHelper.Percent.Invoke());
                                 if (points.Count > 0)
                                 {
-                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {waitImageBuilder.Finds[i]}{j} {points.Count} points ({string.Join("|", points)})");
-                                    _points.AddRange(points.Select(x => new Tuple<int, Point>(i, x)));
+                                    waitImageBuilder.waitImageHelper.WriteLog($"Found: {finds[i]}{j} {points.Count} points ({string.Join("|", points)})");
+                                    _points.AddRange(points.Select(x => new Tuple<int, OpenCvFindResult>(i, x)));
                                 }
                             }
 
@@ -82,7 +87,7 @@ namespace TqkLibrary.Media.Images
                                     List<bool> results = new List<bool>();
                                     foreach (var point in _points)
                                     {
-                                        results.Add(await TapAsync(point.Item1, point.Item2, waitImageBuilder.Finds));
+                                        results.Add(await TapAsync(point.Item1, point.Item2, finds));
                                     }
                                     if (results.All(x => x))
                                     {
@@ -97,7 +102,7 @@ namespace TqkLibrary.Media.Images
                                     int random_index = waitImageBuilder.waitImageHelper.random.Next(_points.Count);
                                     if (await TapAsync(_points[random_index].Item1,
                                         _points[random_index].Item2,
-                                        waitImageBuilder.Finds))
+                                        finds))
                                     {
                                         cancellationTokenSource.CancelAfter(waitImageBuilder.waitImageHelper.Timeout.Invoke());
                                         if (waitImageBuilder.IsLoop) _points.Clear();
@@ -113,12 +118,12 @@ namespace TqkLibrary.Media.Images
                     await Task.Delay(waitImageBuilder.waitImageHelper.DelayStep, waitImageBuilder.waitImageHelper.CancellationTokenSource.Token);
                 }
             }
-            if (waitImageBuilder.IsThrow) throw new WaitImageTimeoutException(string.Join("|", waitImageBuilder.Finds));
+            if (waitImageBuilder.IsThrow) throw new WaitImageTimeoutException(string.Join("|", finds));
             return this;
         }
 
 
-        private async Task<bool> TapAsync(int index, Point point, string[] finds)
+        private async Task<bool> TapAsync(int index, OpenCvFindResult point, string[] finds)
         {
             if (waitImageBuilder.TapCallback != null)
             {

@@ -24,15 +24,15 @@ namespace TqkLibrary.Media.Images
         internal bool IsLoop { get; set; } = true;
 
 
-        private Func<int, Point, string[], bool> _TapCallback = null;
-        internal Func<int, Point, string[], bool> TapCallback
+        private Func<int, OpenCvFindResult, string[], bool> _TapCallback = null;
+        internal Func<int, OpenCvFindResult, string[], bool> TapCallback
         {
             get { return _TapCallback; }
             private set { _TapCallback = value; _TapCallbackAsync = null; }
         }
 
-        private Func<int, Point, string[], Task<bool>> _TapCallbackAsync = null;
-        internal Func<int, Point, string[], Task<bool>> TapCallbackAsync
+        private Func<int, OpenCvFindResult, string[], Task<bool>> _TapCallbackAsync = null;
+        internal Func<int, OpenCvFindResult, string[], Task<bool>> TapCallbackAsync
         {
             get { return _TapCallbackAsync; }
             private set { _TapCallbackAsync = value; _TapCallback = null; }
@@ -62,7 +62,7 @@ namespace TqkLibrary.Media.Images
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(Func<int, Point, string[], bool> tapCallback)
+        public WaitImageBuilder AndTapFirst(Func<int, OpenCvFindResult, string[], bool> tapCallback)
         {
             this.TapCallback = tapCallback ?? throw new ArgumentNullException(nameof(tapCallback));
             IsFirst = true;
@@ -75,7 +75,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="tapCallbackAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(Func<int, Point, string[], Task<bool>> tapCallbackAsync)
+        public WaitImageBuilder AndTapFirst(Func<int, OpenCvFindResult, string[], Task<bool>> tapCallbackAsync)
         {
             this.TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
             IsFirst = true;
@@ -92,7 +92,7 @@ namespace TqkLibrary.Media.Images
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(Func<int, Point, string[], bool> tapCallback)
+        public WaitImageBuilder AndTapRandom(Func<int, OpenCvFindResult, string[], bool> tapCallback)
         {
             this.TapCallback = tapCallback ?? throw new ArgumentNullException(nameof(tapCallback));
             IsFirst = false;
@@ -105,7 +105,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="tapCallbackAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(Func<int, Point, string[], Task<bool>> tapCallbackAsync)
+        public WaitImageBuilder AndTapRandom(Func<int, OpenCvFindResult, string[], Task<bool>> tapCallbackAsync)
         {
             this.TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
             IsFirst = false;
@@ -121,7 +121,7 @@ namespace TqkLibrary.Media.Images
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(Func<int, Point, string[], bool> tapCallback)
+        public WaitImageBuilder AndTapAll(Func<int, OpenCvFindResult, string[], bool> tapCallback)
         {
             this.TapCallback = tapCallback ?? throw new ArgumentNullException(nameof(tapCallback));
             IsFirst = false;
@@ -134,7 +134,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="tapCallbackAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(Func<int, Point, string[], Task<bool>> tapCallbackAsync)
+        public WaitImageBuilder AndTapAll(Func<int, OpenCvFindResult, string[], Task<bool>> tapCallbackAsync)
         {
             this.TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
             IsFirst = false;
