@@ -31,7 +31,8 @@ namespace TqkLibrary.Media.Images
             var finds = _finds.ToArray();
 
             waitImageBuilder.waitImageHelper.WriteLog((waitImageBuilder.IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", finds));
-            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(waitImageBuilder.waitImageHelper.Timeout.Invoke()))
+            using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(
+                waitImageBuilder.Timeout.HasValue ? waitImageBuilder.Timeout.Value : waitImageBuilder.waitImageHelper.Timeout.Invoke()))
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
                 {
@@ -58,7 +59,8 @@ namespace TqkLibrary.Media.Images
                                     if (await TapAsync(i, result, finds))
                                     {
                                         //reset to while
-                                        cancellationTokenSource.CancelAfter(waitImageBuilder.waitImageHelper.Timeout.Invoke());
+                                        if (waitImageBuilder.ResetTimeout) cancellationTokenSource.CancelAfter(
+                                            waitImageBuilder.Timeout.HasValue ? waitImageBuilder.Timeout.Value : waitImageBuilder.waitImageHelper.Timeout.Invoke());
                                         i = finds.Length;//break i
                                         break;//break j
                                     }
@@ -91,7 +93,8 @@ namespace TqkLibrary.Media.Images
                                     }
                                     if (results.All(x => x))
                                     {
-                                        cancellationTokenSource.CancelAfter(waitImageBuilder.waitImageHelper.Timeout.Invoke());
+                                        if (waitImageBuilder.ResetTimeout) cancellationTokenSource.CancelAfter(
+                                            waitImageBuilder.Timeout.HasValue ? waitImageBuilder.Timeout.Value : waitImageBuilder.waitImageHelper.Timeout.Invoke());
                                         if (waitImageBuilder.IsLoop) _points.Clear();
                                         break;
                                     }
@@ -104,7 +107,8 @@ namespace TqkLibrary.Media.Images
                                         _points[random_index].Item2,
                                         finds))
                                     {
-                                        cancellationTokenSource.CancelAfter(waitImageBuilder.waitImageHelper.Timeout.Invoke());
+                                        if (waitImageBuilder.ResetTimeout) cancellationTokenSource.CancelAfter(
+                                            waitImageBuilder.Timeout.HasValue ? waitImageBuilder.Timeout.Value : waitImageBuilder.waitImageHelper.Timeout.Invoke());
                                         if (waitImageBuilder.IsLoop) _points.Clear();
                                         break;
                                     }

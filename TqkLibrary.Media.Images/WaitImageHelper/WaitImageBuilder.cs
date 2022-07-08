@@ -22,6 +22,8 @@ namespace TqkLibrary.Media.Images
         internal bool IsThrow { get; private set; } = false;
         internal bool IsFirst { get; private set; } = true;
         internal bool IsLoop { get; set; } = true;
+        internal bool ResetTimeout { get; set; } = true;
+        internal int? Timeout { get; set; } = null;
 
 
         private Func<int, OpenCvFindResult, string[], bool> _TapCallback = null;
@@ -163,6 +165,29 @@ namespace TqkLibrary.Media.Images
         public WaitImageBuilder Do(Action work)
         {
             this.Work = work ?? throw new ArgumentNullException(nameof(work));
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="timeout"></param>
+        /// <returns></returns>
+        public WaitImageBuilder WithTimeout(int? timeout)
+        {
+            this.Timeout = timeout;
+            return this;
+        }
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="isResetTimeout"></param>
+        /// <returns></returns>
+        public WaitImageBuilder WithResetTimeout(bool isResetTimeout)
+        {
+            this.ResetTimeout = isResetTimeout;
             return this;
         }
         
