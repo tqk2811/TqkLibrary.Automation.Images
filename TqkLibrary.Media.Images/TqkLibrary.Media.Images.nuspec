@@ -10,9 +10,9 @@
 		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.Media.Images.git"/>
 		<license type="expression">MIT</license>
 		<dependencies>
-			<dependency id="Emgu.CV" version="4.5.4.4788" />
-			<dependency id="Emgu.CV.Bitmap" version="4.5.4.4788" />
-			<dependency id="Emgu.CV.runtime.windows" version="4.5.4.4788" />
+			<dependency id="Emgu.CV" version="4.5.5.4823" />
+			<dependency id="Emgu.CV.Bitmap" version="4.5.5.4823" />
+			<dependency id="Emgu.CV.runtime.windows" version="4.5.5.4823" />
 			<dependency id="System.Drawing.Common" version="6.0.0" />
 		</dependencies>
 	</metadata>
