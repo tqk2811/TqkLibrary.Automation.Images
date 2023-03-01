@@ -99,6 +99,7 @@ namespace TqkLibrary.Media.Images
             newImage.MakeTransparent();
             using (Graphics graphics = Graphics.FromImage(newImage))
             {
+                using var bitmap_lock = source.LockHepler();
                 source.SetResolution(graphics.DpiX, graphics.DpiY);
                 graphics.DrawImage(source, 0, 0, rect, GraphicsUnit.Pixel);
             }

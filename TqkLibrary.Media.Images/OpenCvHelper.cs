@@ -8,8 +8,15 @@ namespace TqkLibrary.Media.Images
     /// <summary>
     /// 
     /// </summary>
-    public class OpenCvHelper
+    public static class OpenCvHelper
     {
+        static Image<Bgr, byte> ToImageLockHelper(this Bitmap bitmap)
+        {
+            using var lock_obj = bitmap.LockHepler();
+            return bitmap.ToImage<Bgr, byte>();
+        }
+
+
         /// <summary>
         /// 
         /// </summary>
@@ -21,11 +28,18 @@ namespace TqkLibrary.Media.Images
         {
             if (subBitmap == null || mainBitmap == null)
                 return null;
-            if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
-                return null;
 
-            using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();// new Image<Bgr, byte>(mainBitmap);
-            using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
+            Size subBitmapSize;
+            using (var main = mainBitmap.LockHepler())
+            {
+                using var sub = subBitmap.LockHepler();
+                subBitmapSize = subBitmap.Size;
+                if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
+                    return null;
+            }
+
+            using Image<Bgr, byte> source = mainBitmap.ToImageLockHelper();
+            using Image<Bgr, byte> template = subBitmap.ToImageLockHelper();
             Point? resPoint = null;
             double currentMax = 0;
 
@@ -48,7 +62,7 @@ namespace TqkLibrary.Media.Images
             {
                 return new OpenCvFindResult()
                 {
-                    Point = new Point(resPoint.Value.X + subBitmap.Width / 2, resPoint.Value.Y + subBitmap.Height / 2),//center
+                    Point = new Point(resPoint.Value.X + subBitmapSize.Width / 2, resPoint.Value.Y + subBitmapSize.Height / 2),//center
                     Percent = currentMax
                 };
             }
@@ -65,11 +79,6 @@ namespace TqkLibrary.Media.Images
         /// <returns></returns>
         public static OpenCvFindResult FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle crop, double percent = 0.9)
         {
-            if (subBitmap == null || mainBitmap == null)
-                return null;
-            if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
-                return null;
-
             using Bitmap bm_crop = mainBitmap.CropImage(crop);
             OpenCvFindResult result = FindOutPoint(bm_crop, subBitmap, percent);
             if (result != null)
@@ -108,11 +117,19 @@ namespace TqkLibrary.Media.Images
             List<OpenCvFindResult> results = new List<OpenCvFindResult>();
             if (subBitmap == null || mainBitmap == null)
                 return results;
-            if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
-                return results;
 
-            using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
-            using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
+            Size subBitmapSize;
+            using (var main = mainBitmap.LockHepler())
+            {
+                using var sub = subBitmap.LockHepler();
+                subBitmapSize = subBitmap.Size;
+                if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
+                    return results;
+            }
+
+
+            using Image<Bgr, byte> source = mainBitmap.ToImageLockHelper();
+            using Image<Bgr, byte> template = subBitmap.ToImageLockHelper();
             while (true)
             {
                 using (Image<Gray, float> match = source.MatchTemplate(template, Emgu.CV.CvEnum.TemplateMatchingType.CcoeffNormed))
@@ -125,7 +142,7 @@ namespace TqkLibrary.Media.Images
                     {
                         Rectangle rect = new Rectangle(maxLocations[0], template.Size);
                         source.Draw(rect, new Bgr(Color.Blue), -1);
-                        Point center = new Point(maxLocations[0].X + subBitmap.Width / 2, maxLocations[0].Y + subBitmap.Height / 2);
+                        Point center = new Point(maxLocations[0].X + subBitmapSize.Width / 2, maxLocations[0].Y + subBitmapSize.Height / 2);
                         results.Add(new OpenCvFindResult()
                         {
                             Point = center,

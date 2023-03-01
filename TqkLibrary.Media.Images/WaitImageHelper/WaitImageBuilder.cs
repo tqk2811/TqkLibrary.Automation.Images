@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Images
@@ -155,7 +154,7 @@ namespace TqkLibrary.Media.Images
             this.WorkAsync = workAsync ?? throw new ArgumentNullException(nameof(workAsync));
             return this;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>
@@ -190,7 +189,7 @@ namespace TqkLibrary.Media.Images
             this.ResetTimeout = isResetTimeout;
             return this;
         }
-        
+
         /// <summary>
         /// 
         /// </summary>

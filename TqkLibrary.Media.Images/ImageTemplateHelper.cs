@@ -2,9 +2,6 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace TqkLibrary.Media.Images
 {
@@ -16,7 +13,7 @@ namespace TqkLibrary.Media.Images
         {
             if (!Directory.Exists(workingDir))
                 throw new DirectoryNotFoundException(workingDir);
-            if(string.IsNullOrWhiteSpace(extension))
+            if (string.IsNullOrWhiteSpace(extension))
                 throw new ArgumentNullException(nameof(extension));
 
             _extension = extension;
@@ -63,9 +60,9 @@ namespace TqkLibrary.Media.Images
 
         void Clean()
         {
-            foreach(var item in dictionary)
+            foreach (var item in dictionary)
             {
-                using(var bm = item.Value)
+                using (var bm = item.Value)
                 {
 
                 }
