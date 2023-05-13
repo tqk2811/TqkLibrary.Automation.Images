@@ -25,7 +25,7 @@ namespace TqkLibrary.Media.Images
         internal TapFlag _Tapflag { get; private set; } = TapFlag.None;
         internal bool _IsThrow { get; private set; } = false;
         internal bool _IsFirst { get; private set; } = true;
-        internal bool _IsLoop { get; private set; } = true;
+        internal bool _IsLoop { get; set; } = true;
         internal bool _ResetTimeout { get; private set; } = true;
         internal Func<int, OpenCvFindResult, string[], Task<bool>> _TapCallbackAsync { get; private set; }
         internal Func<Task> _WorkAsync { get; private set; }

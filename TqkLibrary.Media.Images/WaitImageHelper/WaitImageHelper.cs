@@ -243,7 +243,7 @@ namespace TqkLibrary.Media.Images
         public WaitImageBuilder FindImage(params string[] finds)
         {
             Check();
-            return new WaitImageBuilder(this, finds) { IsLoop = false };
+            return new WaitImageBuilder(this, finds) { _IsLoop = false };
         }
 
 
