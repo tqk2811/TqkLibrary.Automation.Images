@@ -178,19 +178,27 @@ namespace TqkLibrary.Media.Images
                 {
                     try
                     {
-                        using Pen pen = new Pen(waitImageBuilder._WaitImageHelper._ColorDrawDebugRectangle);
-                        using Brush text_brush = new SolidBrush(waitImageBuilder._WaitImageHelper._ColorDrawDebugRectangle);
-                        using Font font = new Font(waitImageBuilder._WaitImageHelper._FontFamilyDrawTextDebugRectangle, 12);
-                        using Font font = new Font(waitImageHelper._FontFamilyDrawTextDebugRectangle, waitImageBuilder._WaitImageHelper._ColorDrawDebugFontEmSize);
+                        WaitImageHelper waitImageHelper = waitImageBuilder._WaitImageHelper;
+                        using Pen pen = new Pen(waitImageHelper._ColorDrawDebugRectangle);
+                        using Brush text_brush = new SolidBrush(waitImageHelper._ColorDrawDebugRectangle);
+                        using Font font = new Font(waitImageHelper._FontFamilyDrawTextDebugRectangle, waitImageHelper._ColorDrawDebugFontEmSize);
                         using (Graphics graphics = Graphics.FromImage(bitmap))
                         {
                             foreach (var group in crops.GroupBy(x => x.Value))
                             {
                                 graphics.DrawRectangle(pen, group.Key);
-                                graphics.DrawString(string.Concat(",", group.Select(x => x.Key)), font, text_brush, new PointF(group.Key.X, group.Key.Y));
+                            }
+                            foreach (var group in crops.GroupBy(x => x.Value.Location))
+                            {
+                                graphics.DrawString(
+                                    string.Join(",", group.Select(x => x.Key)),
+                                    font,
+                                    text_brush,
+                                    new PointF(group.Key.X, group.Key.Y)
+                                    );
                             }
                         }
-                        waitImageBuilder._WaitImageHelper._DrawDebugRectangle.Invoke(bitmap);
+                        waitImageHelper._DrawDebugRectangle.Invoke(bitmap);
                     }
                     catch (Exception ex)
                     {
