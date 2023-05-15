@@ -199,18 +199,21 @@ namespace TqkLibrary.Media.Images
         internal Action<Bitmap> _DrawDebugRectangle { get; private set; }
         internal FontFamily _FontFamilyDrawTextDebugRectangle { get; private set; }
         internal Color _ColorDrawDebugRectangle { get; private set; }
+        internal float _ColorDrawDebugFontEmSize { get; private set; } = 8.0f;
         /// <summary>
         /// 
         /// </summary>
         /// <param name="drawDebugRectangle"></param>
         /// <param name="fontFamily"></param>
         /// <param name="color"></param>
+        /// <param name="fontEmSize"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageHelper WithDrawDebugRectangle(Action<Bitmap> drawDebugRectangle, FontFamily fontFamily = null, Color? color = null)
+        public WaitImageHelper WithDrawDebugRectangle(Action<Bitmap> drawDebugRectangle, FontFamily fontFamily = null, Color? color = null, float fontEmSize = 8.0f)
         {
             this._DrawDebugRectangle = drawDebugRectangle ?? throw new ArgumentNullException(nameof(drawDebugRectangle));
             this._FontFamilyDrawTextDebugRectangle = fontFamily;
+            this._ColorDrawDebugFontEmSize = fontEmSize;
 
             if (color.HasValue) this._ColorDrawDebugRectangle = color.Value;
             else this._ColorDrawDebugRectangle = Color.Red;

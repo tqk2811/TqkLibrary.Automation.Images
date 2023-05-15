@@ -181,6 +181,7 @@ namespace TqkLibrary.Media.Images
                         using Pen pen = new Pen(waitImageBuilder._WaitImageHelper._ColorDrawDebugRectangle);
                         using Brush text_brush = new SolidBrush(waitImageBuilder._WaitImageHelper._ColorDrawDebugRectangle);
                         using Font font = new Font(waitImageBuilder._WaitImageHelper._FontFamilyDrawTextDebugRectangle, 12);
+                        using Font font = new Font(waitImageHelper._FontFamilyDrawTextDebugRectangle, waitImageBuilder._WaitImageHelper._ColorDrawDebugFontEmSize);
                         using (Graphics graphics = Graphics.FromImage(bitmap))
                         {
                             foreach (var group in crops.GroupBy(x => x.Value))
