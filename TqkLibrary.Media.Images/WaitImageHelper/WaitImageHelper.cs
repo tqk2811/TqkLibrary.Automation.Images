@@ -252,7 +252,6 @@ namespace TqkLibrary.Media.Images
 
         void Check()
         {
-            if (_Template is null) throw new InvalidOperationException($"Template must be set via {nameof(WaitImageHelper)}.{nameof(WaitImageHelper.WithImageTemplate)}");
         }
     }
 }

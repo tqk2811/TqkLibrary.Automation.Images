@@ -49,7 +49,7 @@ namespace TqkLibrary.Media.Images
                     {
                         for (int j = 0; ; j++)
                         {
-                            using Bitmap bitmap_template = waitImageBuilder._WaitImageHelper._Template.Invoke(find_names[i], j);
+                            using Bitmap bitmap_template = waitImageBuilder.GetTemplate(find_names[i], j);
                             if (bitmap_template == null) break;
 
                             Rectangle? crop = waitImageBuilder._WaitImageHelper?._Crop.Invoke(find_names[i]);

@@ -20,6 +20,7 @@ namespace TqkLibrary.Media.Images
 
         private int? _Timeout = null;
         private Func<Task<Bitmap>> _CaptureAsync;
+        Func<string, int, Bitmap> _Template;
 
         internal string[] _Finds { get; }
         internal TapFlag _Tapflag { get; private set; } = TapFlag.None;
@@ -30,8 +31,8 @@ namespace TqkLibrary.Media.Images
         internal Func<int, OpenCvFindResult, string[], Task<bool>> _TapCallbackAsync { get; private set; }
         internal Func<Task> _WorkAsync { get; private set; }
 
-
         internal Task<Bitmap> GetCaptureAsync() => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync)();
+        internal Bitmap GetTemplate(string name, int index) => (_Template ?? _WaitImageHelper._Template)(name, index);
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _WaitImageHelper._Timeout(); } }
 
 
@@ -178,6 +179,18 @@ namespace TqkLibrary.Media.Images
             return this;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="template"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder WithTemplateSource(Func<string, int, Bitmap> template)
+        {
+            this._Template = template ?? throw new ArgumentNullException(nameof(template));
+            return this;
+        }
+
 
         /// <summary>
         /// 
@@ -224,6 +237,10 @@ namespace TqkLibrary.Media.Images
 
         void Check()
         {
+            if (_WaitImageHelper._Template is null &&
+                _Template is null)
+                throw new InvalidOperationException($"Template must be set via {nameof(WaitImageHelper)}.{nameof(WaitImageHelper.WithImageTemplate)} or {nameof(WaitImageBuilder)}.{nameof(WaitImageBuilder.WithTemplateSource)}");
+
             if (_WaitImageHelper._CaptureAsync is null &&
                 this._CaptureAsync is null)
                 throw new InvalidOperationException($"Capture must be set via {nameof(WaitImageHelper)}.{nameof(WaitImageHelper.WithCapture)} or {nameof(WaitImageBuilder)}.{nameof(WaitImageBuilder.WithCapture)}");
