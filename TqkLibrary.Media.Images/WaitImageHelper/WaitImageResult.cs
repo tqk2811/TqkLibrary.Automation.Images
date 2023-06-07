@@ -16,7 +16,7 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        public IEnumerable<Tuple<int, OpenCvFindResult>> Points { get { return _points; } }
+        public IReadOnlyList<Tuple<int, OpenCvFindResult>> Points { get { return _points; } }
         readonly List<Tuple<int, OpenCvFindResult>> _points = new List<Tuple<int, OpenCvFindResult>>();
 
 
