@@ -18,6 +18,12 @@ namespace TqkLibrary.Media.Images
         /// </summary>
         public IEnumerable<Tuple<int, OpenCvFindResult>> Points { get { return _points; } }
         readonly List<Tuple<int, OpenCvFindResult>> _points = new List<Tuple<int, OpenCvFindResult>>();
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IReadOnlyList<string> FindNames { get; private set; }
         readonly WaitImageBuilder waitImageBuilder;
         internal WaitImageResult(WaitImageBuilder waitImageBuilder)
         {
@@ -29,12 +35,12 @@ namespace TqkLibrary.Media.Images
 
         internal async Task<WaitImageResult> StartAsync()
         {
-            var find_names = waitImageBuilder._WaitImageHelper._GlobalNameFindFirst
+            FindNames = waitImageBuilder._WaitImageHelper._GlobalNameFindFirst
                 .Concat(waitImageBuilder._Finds)
                 .Concat(waitImageBuilder._WaitImageHelper._GlobalNameFindLast)
                 .ToArray();
 
-            waitImageBuilder._WaitImageHelper.WriteLog((waitImageBuilder._IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", find_names));
+            waitImageBuilder._WaitImageHelper.WriteLog((waitImageBuilder._IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", FindNames));
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(waitImageBuilder.GetTimeout))
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
@@ -45,17 +51,17 @@ namespace TqkLibrary.Media.Images
                     using Bitmap bitmap_capture = await CaptureAsync().ConfigureAwait(false);
                     if (bitmap_capture == null) throw new NullReferenceException(nameof(bitmap_capture));
 
-                    for (int i = 0; i < find_names.Length; i++)
+                    for (int i = 0; i < FindNames.Count; i++)
                     {
                         for (int j = 0; ; j++)
                         {
-                            using Bitmap bitmap_template = waitImageBuilder.GetTemplate(find_names[i], j);
+                            using Bitmap bitmap_template = waitImageBuilder.GetTemplate(FindNames[i], j);
                             if (bitmap_template == null) break;
 
-                            Rectangle? crop = waitImageBuilder._WaitImageHelper?._Crop.Invoke(find_names[i]);
-                            if (crop.HasValue && !dict_crops.ContainsKey(find_names[i]))
+                            Rectangle? crop = waitImageBuilder._WaitImageHelper?._Crop.Invoke(FindNames[i]);
+                            if (crop.HasValue && !dict_crops.ContainsKey(FindNames[i]))
                             {
-                                dict_crops.Add(find_names[i], crop.Value);
+                                dict_crops.Add(FindNames[i], crop.Value);
                             }
 
                             if (waitImageBuilder._IsFirst)
@@ -65,13 +71,13 @@ namespace TqkLibrary.Media.Images
                                 if (result != null)
                                 {
                                     _points.Add(new Tuple<int, OpenCvFindResult>(i, result));
-                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {find_names[i]}{j} {result}");
+                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {FindNames[i]}{j} {result}");
 
-                                    if (await TapAsync(i, result, find_names).ConfigureAwait(false))
+                                    if (await TapAsync(i, result, FindNames).ConfigureAwait(false))
                                     {
                                         //reset to while
                                         if (waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(waitImageBuilder.GetTimeout);
-                                        i = find_names.Length;//break i
+                                        i = FindNames.Count;//break i
                                         break;//break j
                                     }
                                     else return this;
@@ -82,7 +88,7 @@ namespace TqkLibrary.Media.Images
                                 var points = await FindOutPointsAsync(bitmap_capture, bitmap_template, crop);
                                 if (points.Count > 0)
                                 {
-                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {find_names[i]}{j} {points.Count} points ({string.Join("|", points)})");
+                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {FindNames[i]}{j} {points.Count} points ({string.Join("|", points)})");
                                     _points.AddRange(points.Select(x => new Tuple<int, OpenCvFindResult>(i, x)));
                                 }
                             }
@@ -98,7 +104,7 @@ namespace TqkLibrary.Media.Images
                                     List<bool> results = new List<bool>();
                                     foreach (var point in _points)
                                     {
-                                        results.Add(await TapAsync(point.Item1, point.Item2, find_names).ConfigureAwait(false));
+                                        results.Add(await TapAsync(point.Item1, point.Item2, FindNames).ConfigureAwait(false));
                                     }
                                     if (results.All(x => x))
                                     {
@@ -111,7 +117,7 @@ namespace TqkLibrary.Media.Images
                             case TapFlag.Random:
                                 {
                                     int random_index = waitImageBuilder._WaitImageHelper._Random.Next(_points.Count);
-                                    if (await TapAsync(_points[random_index].Item1, _points[random_index].Item2, find_names).ConfigureAwait(false))
+                                    if (await TapAsync(_points[random_index].Item1, _points[random_index].Item2, FindNames).ConfigureAwait(false))
                                     {
                                         if (waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(waitImageBuilder.GetTimeout);
                                         if (waitImageBuilder._IsLoop) _points.Clear();
@@ -129,7 +135,7 @@ namespace TqkLibrary.Media.Images
                     await Task.Delay(waitImageBuilder._WaitImageHelper.DelayStep, waitImageBuilder._WaitImageHelper.CancellationToken);
                 }
             }
-            if (waitImageBuilder._IsThrow) throw new WaitImageTimeoutException(string.Join("|", find_names));
+            if (waitImageBuilder._IsThrow) throw new WaitImageTimeoutException(string.Join("|", FindNames));
             return this;
         }
 
@@ -156,7 +162,7 @@ namespace TqkLibrary.Media.Images
             }
         }
 
-        private Task<bool> TapAsync(int index, OpenCvFindResult point, string[] finds)
+        private Task<bool> TapAsync(int index, OpenCvFindResult point, IReadOnlyList<string> finds)
         {
             Task<bool> task = waitImageBuilder._TapCallbackAsync?.Invoke(index, point, finds);
             return task ?? Task.FromResult(false);
