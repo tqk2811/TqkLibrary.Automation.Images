@@ -37,6 +37,7 @@ namespace TqkLibrary.Media.Images
         internal Bitmap GetTemplate(string name, int index) => (_Template ?? _WaitImageHelper._Template)(name, index);
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _WaitImageHelper._Timeout(); } }
         internal int DelayStep { get { return _DelayStep.HasValue ? _DelayStep.Value : _WaitImageHelper.DelayStep; } }
+        internal ImageNamesFilter _ImageNamesFilter { get; private set; }
 
 
 
@@ -228,6 +229,24 @@ namespace TqkLibrary.Media.Images
         public WaitImageBuilder WithResetTimeout(bool isResetTimeout)
         {
             this._ResetTimeout = isResetTimeout;
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="imageNames"></param>
+        /// <param name="lastFound"></param>
+        /// <returns></returns>
+        public delegate IEnumerable<string> ImageNamesFilter(IEnumerable<string> imageNames, string lastFound);
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="imageNamesFilter"></param>
+        /// <returns></returns>
+        public WaitImageBuilder WithImageNamesFilter(ImageNamesFilter imageNamesFilter)
+        {
+            this._ImageNamesFilter = imageNamesFilter;
             return this;
         }
 

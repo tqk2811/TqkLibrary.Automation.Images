@@ -31,7 +31,7 @@ namespace TqkLibrary.Media.Images
         }
 
         Task<Bitmap> CaptureAsync() => waitImageBuilder.GetCaptureAsync();
-
+        private string lastFound = string.Empty;
 
         internal async Task<WaitImageResult> StartAsync()
         {
@@ -39,6 +39,11 @@ namespace TqkLibrary.Media.Images
                 .Concat(waitImageBuilder._Finds)
                 .Concat(waitImageBuilder._WaitImageHelper._GlobalNameFindLast)
                 .ToArray();
+
+            if (waitImageBuilder._ImageNamesFilter is not null)
+            {
+                FindNames = waitImageBuilder._ImageNamesFilter.Invoke(FindNames, lastFound).ToList();
+            }
 
             waitImageBuilder._WaitImageHelper.WriteLog((waitImageBuilder._IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", FindNames));
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(waitImageBuilder.GetTimeout))
@@ -72,6 +77,7 @@ namespace TqkLibrary.Media.Images
                                 {
                                     _points.Add(new Tuple<int, OpenCvFindResult>(i, result));
                                     waitImageBuilder._WaitImageHelper.WriteLog($"Found: {FindNames[i]}{j} {result}");
+                                    lastFound = FindNames[i];
 
                                     if (await TapAsync(i, result, FindNames).ConfigureAwait(false))
                                     {
@@ -89,6 +95,8 @@ namespace TqkLibrary.Media.Images
                                 if (points.Count > 0)
                                 {
                                     waitImageBuilder._WaitImageHelper.WriteLog($"Found: {FindNames[i]}{j} {points.Count} points ({string.Join("|", points)})");
+                                    lastFound = FindNames[i];
+
                                     _points.AddRange(points.Select(x => new Tuple<int, OpenCvFindResult>(i, x)));
                                 }
                             }
