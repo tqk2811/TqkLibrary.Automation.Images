@@ -5,10 +5,20 @@ using System.IO;
 
 namespace TqkLibrary.Media.Images
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class ImageTemplateHelper : IDisposable
     {
         readonly string _workingDir;
         readonly string _extension;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="workingDir"></param>
+        /// <param name="extension"></param>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        /// <exception cref="ArgumentNullException"></exception>
         public ImageTemplateHelper(string workingDir, string extension = "png")
         {
             if (!Directory.Exists(workingDir))
@@ -19,12 +29,38 @@ namespace TqkLibrary.Media.Images
             _extension = extension;
             _workingDir = workingDir;
         }
+        /// <summary>
+        /// 
+        /// </summary>
         ~ImageTemplateHelper()
         {
             Clean();
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        public void Dispose()
+        {
+            Clean();
+            GC.SuppressFinalize(this);
+        }
+        void Clean()
+        {
+            foreach (var item in dictionary)
+            {
+                using (var bm = item.Value)
+                {
 
+                }
+            }
+        }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="index"></param>
+        /// <returns></returns>
         public Bitmap GetImage(string name, int index)
         {
             string fileName = $"{name}{index}";
@@ -42,31 +78,18 @@ namespace TqkLibrary.Media.Images
             {
                 lock (dictionary)
                 {
-                    if (!dictionary.ContainsKey(fileName)) dictionary[fileName] = (Bitmap)Bitmap.FromFile($"{_workingDir}\\{fileName}.{_extension}");
+                    string path = Path.Combine(_workingDir, $"{fileName}.{_extension}");
+                    if (!dictionary.ContainsKey(fileName)) dictionary[fileName] = (Bitmap)Bitmap.FromFile(path);
                 }
             }
             Bitmap bitmap = dictionary[fileName];
             lock (dictionary) return new Bitmap(bitmap);
         }
 
-        private bool ImageExit(string fileName) => File.Exists($"{_workingDir}\\{fileName}.{_extension}");
-
-
-        public void Dispose()
+        private bool ImageExit(string fileName)
         {
-            Clean();
-            GC.SuppressFinalize(this);
-        }
-
-        void Clean()
-        {
-            foreach (var item in dictionary)
-            {
-                using (var bm = item.Value)
-                {
-
-                }
-            }
+            string path = Path.Combine(_workingDir, $"{fileName}.{_extension}");
+            return File.Exists(path);
         }
     }
 }
