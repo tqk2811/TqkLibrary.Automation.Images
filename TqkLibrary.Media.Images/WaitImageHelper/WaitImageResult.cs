@@ -132,7 +132,7 @@ namespace TqkLibrary.Media.Images
 
                     if (!waitImageBuilder._IsLoop) break;
                     await DoAsync().ConfigureAwait(false);
-                    await Task.Delay(waitImageBuilder._WaitImageHelper.DelayStep, waitImageBuilder._WaitImageHelper.CancellationToken);
+                    await Task.Delay(waitImageBuilder.DelayStep, waitImageBuilder._WaitImageHelper.CancellationToken);
                 }
             }
             if (waitImageBuilder._IsThrow) throw new WaitImageTimeoutException(string.Join("|", FindNames));

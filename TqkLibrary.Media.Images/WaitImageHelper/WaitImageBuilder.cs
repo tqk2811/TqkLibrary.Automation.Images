@@ -20,6 +20,7 @@ namespace TqkLibrary.Media.Images
         }
 
         private int? _Timeout = null;
+        private int? _DelayStep = null;
         private Func<Task<Bitmap>> _CaptureAsync;
         Func<string, int, Bitmap> _Template;
 
@@ -35,7 +36,21 @@ namespace TqkLibrary.Media.Images
         internal Task<Bitmap> GetCaptureAsync() => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync)();
         internal Bitmap GetTemplate(string name, int index) => (_Template ?? _WaitImageHelper._Template)(name, index);
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _WaitImageHelper._Timeout(); } }
+        internal int DelayStep { get { return _DelayStep.HasValue ? _DelayStep.Value : _WaitImageHelper.DelayStep; } }
 
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delayStep"></param>
+        /// <returns></returns>
+        public WaitImageBuilder WithDelayStep(int delayStep)
+        {
+            if (delayStep <= 0) throw new ArgumentException($"{nameof(delayStep)} must be large than 0");
+            this._DelayStep = delayStep;
+            return this;
+        }
 
         /// <summary>
         /// 
