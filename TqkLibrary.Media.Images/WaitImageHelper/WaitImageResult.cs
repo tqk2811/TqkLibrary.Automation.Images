@@ -40,11 +40,6 @@ namespace TqkLibrary.Media.Images
                 .Concat(waitImageBuilder._WaitImageHelper._GlobalNameFindLast)
                 .ToArray();
 
-            if (waitImageBuilder._ImageNamesFilter is not null)
-            {
-                FindNames = waitImageBuilder._ImageNamesFilter.Invoke(FindNames, lastFound).ToList();
-            }
-
             waitImageBuilder._WaitImageHelper.WriteLog((waitImageBuilder._IsLoop ? "WaitUntil: " : "FindImage: ") + string.Join(",", FindNames));
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(waitImageBuilder.GetTimeout))
             {
@@ -56,17 +51,19 @@ namespace TqkLibrary.Media.Images
                     using Bitmap bitmap_capture = await CaptureAsync().ConfigureAwait(false);
                     if (bitmap_capture == null) throw new NullReferenceException(nameof(bitmap_capture));
 
-                    for (int i = 0; i < FindNames.Count; i++)
+                    var _FindNamesFilter = waitImageBuilder._ImageNamesFilter?.Invoke(FindNames, lastFound).ToList() ?? FindNames;
+
+                    for (int i = 0; i < _FindNamesFilter.Count; i++)
                     {
                         for (int j = 0; ; j++)
                         {
-                            using Bitmap bitmap_template = waitImageBuilder.GetTemplate(FindNames[i], j);
+                            using Bitmap bitmap_template = waitImageBuilder.GetTemplate(_FindNamesFilter[i], j);
                             if (bitmap_template == null) break;
 
-                            Rectangle? crop = waitImageBuilder._WaitImageHelper?._Crop.Invoke(FindNames[i]);
-                            if (crop.HasValue && !dict_crops.ContainsKey(FindNames[i]))
+                            Rectangle? crop = waitImageBuilder._WaitImageHelper?._Crop.Invoke(_FindNamesFilter[i]);
+                            if (crop.HasValue && !dict_crops.ContainsKey(_FindNamesFilter[i]))
                             {
-                                dict_crops.Add(FindNames[i], crop.Value);
+                                dict_crops.Add(_FindNamesFilter[i], crop.Value);
                             }
 
                             if (waitImageBuilder._IsFirst)
@@ -76,14 +73,14 @@ namespace TqkLibrary.Media.Images
                                 if (result != null)
                                 {
                                     _points.Add(new Tuple<int, OpenCvFindResult>(i, result));
-                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {FindNames[i]}{j} {result}");
-                                    lastFound = FindNames[i];
+                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {_FindNamesFilter[i]}{j} {result}");
+                                    lastFound = _FindNamesFilter[i];
 
-                                    if (await TapAsync(i, result, FindNames).ConfigureAwait(false))
+                                    if (await TapAsync(i, result, _FindNamesFilter).ConfigureAwait(false))
                                     {
                                         //reset to while
                                         if (waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(waitImageBuilder.GetTimeout);
-                                        i = FindNames.Count;//break i
+                                        i = _FindNamesFilter.Count;//break i
                                         break;//break j
                                     }
                                     else return this;
@@ -94,8 +91,8 @@ namespace TqkLibrary.Media.Images
                                 var points = await FindOutPointsAsync(bitmap_capture, bitmap_template, crop);
                                 if (points.Count > 0)
                                 {
-                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {FindNames[i]}{j} {points.Count} points ({string.Join("|", points)})");
-                                    lastFound = FindNames[i];
+                                    waitImageBuilder._WaitImageHelper.WriteLog($"Found: {_FindNamesFilter[i]}{j} {points.Count} points ({string.Join("|", points)})");
+                                    lastFound = _FindNamesFilter[i];
 
                                     _points.AddRange(points.Select(x => new Tuple<int, OpenCvFindResult>(i, x)));
                                 }
