@@ -9,6 +9,19 @@ namespace TqkLibrary.Media.Images
     /// <summary>
     /// 
     /// </summary>
+    /// <param name="dataResult"></param>
+    /// <returns></returns>
+    public delegate bool TapAction(WaitImageDataResult dataResult);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="dataResult"></param>
+    /// <returns></returns>
+    public delegate Task<bool> TapActionAsync(WaitImageDataResult dataResult);
+
+    /// <summary>
+    /// 
+    /// </summary>
     public class WaitImageBuilder
     {
         internal WaitImageHelper _WaitImageHelper { get; }
@@ -30,7 +43,7 @@ namespace TqkLibrary.Media.Images
         internal bool _IsFirst { get; private set; } = true;
         internal bool _IsLoop { get; set; } = true;
         internal bool _ResetTimeout { get; private set; } = true;
-        internal Func<int, OpenCvFindResult, IReadOnlyList<string>, Task<bool>> _TapCallbackAsync { get; private set; }
+        internal TapActionAsync _TapCallbackAsync { get; private set; }
         internal Func<Task> _WorkAsync { get; private set; }
 
         internal Task<Bitmap> GetCaptureAsync() => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync)();
@@ -78,16 +91,16 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapCallback">bool (index,point,finds)<br>
+        /// <param name="tapAction">bool (index,point,finds)<br>
         /// </br>index: found at index of finds<br>
         /// </br>point: point found<br>
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(Func<int, OpenCvFindResult, IReadOnlyList<string>, bool> tapCallback)
+        public WaitImageBuilder AndTapFirst(TapAction tapAction)
         {
-            if (tapCallback is null) throw new ArgumentNullException(nameof(tapCallback));
-            this._TapCallbackAsync = (i, r, imgs) => Task.FromResult(tapCallback.Invoke(i, r, imgs));
+            if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
+            this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
             _IsFirst = true;
             _Tapflag = TapFlag.First;
             return this;
@@ -95,12 +108,12 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapCallbackAsync"></param>
+        /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(Func<int, OpenCvFindResult, IReadOnlyList<string>, Task<bool>> tapCallbackAsync)
+        public WaitImageBuilder AndTapFirst(TapActionAsync tapActionAsync)
         {
-            this._TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
+            this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
             _IsFirst = true;
             _Tapflag = TapFlag.First;
             return this;
@@ -109,16 +122,16 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapCallback">bool (index,point,finds)<br>
+        /// <param name="tapAction">bool (index,point,finds)<br>
         /// </br>index: found at index of finds<br>
         /// </br>point: point found<br>
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(Func<int, OpenCvFindResult, IReadOnlyList<string>, bool> tapCallback)
+        public WaitImageBuilder AndTapRandom(TapAction tapAction)
         {
-            if (tapCallback is null) throw new ArgumentNullException(nameof(tapCallback));
-            this._TapCallbackAsync = (i, r, imgs) => Task.FromResult(tapCallback.Invoke(i, r, imgs));
+            if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
+            this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
             _IsFirst = false;
             _Tapflag = TapFlag.Random;
             return this;
@@ -126,12 +139,12 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapCallbackAsync"></param>
+        /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(Func<int, OpenCvFindResult, IReadOnlyList<string>, Task<bool>> tapCallbackAsync)
+        public WaitImageBuilder AndTapRandom(TapActionAsync tapActionAsync)
         {
-            this._TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
+            this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
             _IsFirst = false;
             _Tapflag = TapFlag.Random;
             return this;
@@ -140,16 +153,16 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapCallback">bool (index,point,finds)<br>
+        /// <param name="tapAction">bool (index,point,finds)<br>
         /// </br>index: found at index of finds<br>
         /// </br>point: point found<br>
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(Func<int, OpenCvFindResult, IReadOnlyList<string>, bool> tapCallback)
+        public WaitImageBuilder AndTapAll(TapAction tapAction)
         {
-            if (tapCallback is null) throw new ArgumentNullException(nameof(tapCallback));
-            this._TapCallbackAsync = (i, r, imgs) => Task.FromResult(tapCallback.Invoke(i, r, imgs));
+            if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
+            this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
             _IsFirst = false;
             _Tapflag = TapFlag.All;
             return this;
@@ -157,12 +170,12 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapCallbackAsync"></param>
+        /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(Func<int, OpenCvFindResult, IReadOnlyList<string>, Task<bool>> tapCallbackAsync)
+        public WaitImageBuilder AndTapAll(TapActionAsync tapActionAsync)
         {
-            this._TapCallbackAsync = tapCallbackAsync ?? throw new ArgumentNullException(nameof(tapCallbackAsync));
+            this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
             _IsFirst = false;
             _Tapflag = TapFlag.All;
             return this;
