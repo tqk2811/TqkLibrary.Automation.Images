@@ -14,6 +14,7 @@
 				<dependency id="Emgu.CV" version="4.9.0.5494" />
 				<dependency id="Emgu.CV.Bitmap" version="4.9.0.5494" />
 				<dependency id="Emgu.CV.runtime.windows" version="4.9.0.5494" />
+				<dependency id="Newtonsoft.Json" version="13.0.3" />
 				<dependency id="System.Drawing.Common" version="9.0.0" />
 			</group>
 		</dependencies>
