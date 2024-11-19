@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using Newtonsoft.Json;
 namespace TqkLibrary.Media.Images
 {
     /// <summary>
@@ -33,6 +35,18 @@ namespace TqkLibrary.Media.Images
 
         }
 
+        readonly string? _workingDir;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="workingDir"></param>
+        /// <exception cref="DirectoryNotFoundException"></exception>
+        public ImageCropHelper(string workingDir) : this()
+        {
+            if (!Directory.Exists(workingDir)) throw new DirectoryNotFoundException(workingDir);
+            _workingDir = workingDir;
+        }
+
 
 
         readonly Dictionary<string, Rectangle> dict_crops;
@@ -49,6 +63,18 @@ namespace TqkLibrary.Media.Images
         /// <returns></returns>
         public Rectangle? GetCrop(string name)
         {
+            if (!string.IsNullOrWhiteSpace(_workingDir))
+            {
+                string path = Path.Combine(_workingDir, $"{name}.json");
+                if (!File.Exists(path))
+                {
+                    string text = File.ReadAllText(path);
+                    if (!string.IsNullOrWhiteSpace(text))
+                    {
+                        return JsonConvert.DeserializeObject<Rectangle>(text);
+                    }
+                }
+            }
             if (dict_crops.ContainsKey(name)) return dict_crops[name];
             else return null;
         }
