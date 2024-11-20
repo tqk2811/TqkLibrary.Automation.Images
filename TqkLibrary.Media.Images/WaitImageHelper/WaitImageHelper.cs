@@ -28,7 +28,7 @@ namespace TqkLibrary.Media.Images
 
 
 
-        internal Random _Random { get; } = new Random(DateTime.Now.Millisecond);
+        internal Random _Random { get; } = new Random(DateTime.Now.GetHashCode());
         internal void WriteLog(string text)
         {
             LogCallback?.Invoke(text);
@@ -169,6 +169,18 @@ namespace TqkLibrary.Media.Images
             return this;
         }
 
+        internal Func<int, CancellationToken, Task> _delay { get; private set; } = Task.Delay;
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="delay"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageHelper WithCustomDelay(Func<int, CancellationToken, Task> delay)
+        {
+            _delay = delay ?? throw new ArgumentNullException(nameof(delay));
+            return this;
+        }
 
 
         internal IEnumerable<string> _GlobalNameFindLast { get; private set; } = Enumerable.Empty<string>();

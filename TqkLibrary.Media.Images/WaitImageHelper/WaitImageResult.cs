@@ -23,11 +23,11 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyList<string> FindNames { get; private set; }
+        public IReadOnlyList<string> FindNames { get; private set; } = new List<string>();
         readonly WaitImageBuilder _waitImageBuilder;
         internal WaitImageResult(WaitImageBuilder waitImageBuilder)
         {
-            this._waitImageBuilder = waitImageBuilder;
+            this._waitImageBuilder = waitImageBuilder ?? throw new ArgumentNullException(nameof(waitImageBuilder));
         }
 
         Task<Bitmap> CaptureAsync() => _waitImageBuilder.GetCaptureAsync();
@@ -64,7 +64,7 @@ namespace TqkLibrary.Media.Images
                             using Bitmap bitmap_template = _waitImageBuilder.GetTemplate(findNamesFilter[i], j);
                             if (bitmap_template == null) break;
 
-                            Rectangle? crop = _waitImageBuilder._WaitImageHelper?._Crop.Invoke(findNamesFilter[i]);
+                            Rectangle? crop = _waitImageBuilder._WaitImageHelper._Crop?.Invoke(findNamesFilter[i]);
                             if (crop.HasValue && !dict_crops.ContainsKey(findNamesFilter[i]))
                             {
                                 dict_crops.Add(findNamesFilter[i], crop.Value);
@@ -142,7 +142,7 @@ namespace TqkLibrary.Media.Images
 
                     if (!_waitImageBuilder._IsLoop) break;
                     await DoAsync().ConfigureAwait(false);
-                    await Task.Delay(_waitImageBuilder.DelayStep, _waitImageBuilder._WaitImageHelper.CancellationToken);
+                    await _waitImageBuilder._WaitImageHelper._delay(_waitImageBuilder.DelayStep, _waitImageBuilder._WaitImageHelper.CancellationToken);
                 }
             }
             if (_waitImageBuilder._IsThrow) throw new WaitImageTimeoutException(string.Join("|", FindNames));

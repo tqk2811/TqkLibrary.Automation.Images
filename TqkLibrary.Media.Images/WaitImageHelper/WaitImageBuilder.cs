@@ -29,13 +29,13 @@ namespace TqkLibrary.Media.Images
         {
             this._Finds = finds ?? throw new ArgumentNullException(nameof(finds));
             if (finds.Length == 0) throw new ArgumentNullException(nameof(finds));
-            this._WaitImageHelper = waitImageHelper;
+            this._WaitImageHelper = waitImageHelper ?? throw new ArgumentNullException(nameof(waitImageHelper));
         }
 
         private int? _Timeout = null;
         private int? _DelayStep = null;
-        private Func<Task<Bitmap>> _CaptureAsync;
-        Func<string, int, Bitmap> _Template;
+        private Func<Task<Bitmap>>? _CaptureAsync;
+        Func<string, int, Bitmap>? _Template;
 
         internal string[] _Finds { get; }
         internal TapFlag _Tapflag { get; private set; } = TapFlag.None;
@@ -43,14 +43,14 @@ namespace TqkLibrary.Media.Images
         internal bool _IsFirst { get; private set; } = true;
         internal bool _IsLoop { get; set; } = true;
         internal bool _ResetTimeout { get; private set; } = true;
-        internal TapActionAsync _TapCallbackAsync { get; private set; }
-        internal Func<Task> _WorkAsync { get; private set; }
+        internal TapActionAsync? _TapCallbackAsync { get; private set; }
+        internal Func<Task>? _WorkAsync { get; private set; }
 
         internal Task<Bitmap> GetCaptureAsync() => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync)();
         internal Bitmap GetTemplate(string name, int index) => (_Template ?? _WaitImageHelper._Template)(name, index);
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _WaitImageHelper._Timeout(); } }
         internal int DelayStep { get { return _DelayStep.HasValue ? _DelayStep.Value : _WaitImageHelper.DelayStep; } }
-        internal ImageNamesFilter _ImageNamesFilter { get; private set; }
+        internal ImageNamesFilter? _ImageNamesFilter { get; private set; }
 
 
 
