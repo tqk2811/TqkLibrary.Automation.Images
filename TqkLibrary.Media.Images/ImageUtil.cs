@@ -205,12 +205,16 @@ namespace TqkLibrary.Media.Images
         }
 
         #region Graphics Extension
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static void DrawText(this Graphics graphics, Point point, string text, Font font, Color color, int opacity = 128)
         {
             graphics.DrawString(text, font, new SolidBrush(Color.FromArgb(opacity, color)), point);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public static void DrawChild(this Graphics graphics, Bitmap child, Point pos)
         {
             graphics.DrawImage(child, pos.X, pos.Y, child.Width, child.Height);

@@ -1,4 +1,7 @@
-﻿namespace TqkLibrary.Media.Images
+﻿using System.Diagnostics.CodeAnalysis;
+using System.Runtime.CompilerServices;
+
+namespace TqkLibrary.Media.Images
 {
     /// <summary>
     /// 
@@ -10,13 +13,13 @@
         /// </summary>
         public WaitImageDataResult()
         {
-
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="name"></param>
         /// <param name="openCvFindResult"></param>
+        [SetsRequiredMembers()]
         public WaitImageDataResult(string name, OpenCvFindResult openCvFindResult)
         {
             this.Name = name;
@@ -25,10 +28,10 @@
         /// <summary>
         /// 
         /// </summary>
-        public virtual string Name { get; set; }
+        public required virtual string Name { get; set; }
         /// <summary>
         /// 
         /// </summary>
-        public virtual OpenCvFindResult FindResult { get; set; }
+        public required virtual OpenCvFindResult FindResult { get; set; }
     }
 }

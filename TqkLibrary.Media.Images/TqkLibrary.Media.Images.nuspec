@@ -10,12 +10,12 @@
 		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.Media.Images.git"/>
 		<license type="expression">MIT</license>
 		<dependencies>
-			<group targetFramework="netstandard2.0">
-				<dependency id="Emgu.CV" version="4.9.0.5494" />
-				<dependency id="Emgu.CV.Bitmap" version="4.9.0.5494" />
-				<dependency id="Emgu.CV.runtime.windows" version="4.9.0.5494" />
+			<group targetFramework="net8.0-windows10.0.17763">
+				<dependency id="Emgu.CV" version="4.10.0.5680" />
+				<dependency id="Emgu.CV.Bitmap" version="4.10.0.5680" />
+				<dependency id="Emgu.CV.runtime.windows" version="4.10.0.5680" />
 				<dependency id="Newtonsoft.Json" version="13.0.3" />
-				<dependency id="System.Drawing.Common" version="9.0.0" />
+				<dependency id="System.Drawing.Common" version="9.0.5" />
 			</group>
 		</dependencies>
 	</metadata>

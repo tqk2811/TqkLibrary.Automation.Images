@@ -24,7 +24,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="subBitmap"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public static OpenCvFindResult FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
+        public static OpenCvFindResult? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
         {
             if (subBitmap == null || mainBitmap == null)
                 return null;
@@ -77,10 +77,10 @@ namespace TqkLibrary.Media.Images
         /// <param name="crop"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public static OpenCvFindResult FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle crop, double percent = 0.9)
+        public static OpenCvFindResult? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle crop, double percent = 0.9)
         {
             using Bitmap bm_crop = mainBitmap.CropImage(crop);
-            OpenCvFindResult result = FindOutPoint(bm_crop, subBitmap, percent);
+            OpenCvFindResult? result = FindOutPoint(bm_crop, subBitmap, percent);
             if (result != null)
             {
                 Point subpoint = result.Point;//that was center crop
@@ -99,7 +99,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="crop"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public static OpenCvFindResult FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop, double percent = 0.9)
+        public static OpenCvFindResult? FindOutPoint(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop, double percent = 0.9)
         {
             if (crop == null) return FindOutPoint(mainBitmap, subBitmap, percent);
             else return FindOutPoint(mainBitmap, subBitmap, crop.Value, percent);
@@ -197,30 +197,5 @@ namespace TqkLibrary.Media.Images
         //  CvInvoke.FindNonZero(imageIn, mat);
         //  return mat.ToBitmap();
         //}
-    }
-
-    /// <summary>
-    /// 
-    /// </summary>
-    public class OpenCvFindResult
-    {
-        /// <summary>
-        /// 
-        /// </summary>
-        public Point Point { get; internal set; }
-
-        /// <summary>
-        /// 
-        /// </summary>        
-        public double Percent { get; internal set; }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            return $"{Point}-{Percent}";
-        }
     }
 }

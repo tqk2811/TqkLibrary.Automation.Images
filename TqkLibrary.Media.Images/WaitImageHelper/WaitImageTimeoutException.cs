@@ -2,9 +2,16 @@
 
 namespace TqkLibrary.Media.Images
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class WaitImageTimeoutException : Exception
     {
-        internal WaitImageTimeoutException(string message) : base(message)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
+        public WaitImageTimeoutException(string message) : base(message)
         {
         }
     }

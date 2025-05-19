@@ -20,7 +20,7 @@ namespace TqkLibrary.Media.Images
         /// <summary>
         /// 
         /// </summary>
-        public event Action<string> LogCallback;
+        public event Action<string>? LogCallback;
         /// <summary>
         /// Default: false
         /// </summary>
@@ -50,7 +50,7 @@ namespace TqkLibrary.Media.Images
 
 
 
-        internal Func<Task<Bitmap>> _CaptureAsync { get; private set; }
+        internal Func<Task<Bitmap>>? _CaptureAsync { get; private set; }
         /// <summary>
         /// 
         /// </summary>
@@ -75,7 +75,7 @@ namespace TqkLibrary.Media.Images
 
 
 
-        internal Func<string, int, Bitmap> _Template { get; private set; }
+        internal Func<string, int, Bitmap?>? _Template { get; private set; }
         /// <summary>
         /// 
         /// </summary>
@@ -101,7 +101,7 @@ namespace TqkLibrary.Media.Images
         }
 
 
-        internal Func<string, Rectangle?> _Crop { get; private set; }
+        internal Func<string, Rectangle?>? _Crop { get; private set; }
         /// <summary>
         /// 
         /// </summary>
@@ -208,9 +208,9 @@ namespace TqkLibrary.Media.Images
         }
 
 
-        internal Action<Bitmap> _DrawDebugRectangle { get; private set; }
-        internal FontFamily _FontFamilyDrawTextDebugRectangle { get; private set; }
-        internal Color _ColorDrawDebugRectangle { get; private set; }
+        internal Action<Bitmap>? _DrawDebugRectangle { get; private set; }
+        internal FontFamily? _FontFamilyDrawTextDebugRectangle { get; private set; }
+        internal Color _ColorDrawDebugRectangle { get; private set; } = Color.Red;
         internal float _ColorDrawDebugFontEmSize { get; private set; } = 8.0f;
         /// <summary>
         /// 
@@ -221,7 +221,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="fontEmSize"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageHelper WithDrawDebugRectangle(Action<Bitmap> drawDebugRectangle, FontFamily fontFamily = null, Color? color = null, float fontEmSize = 8.0f)
+        public WaitImageHelper WithDrawDebugRectangle(Action<Bitmap> drawDebugRectangle, FontFamily? fontFamily = null, Color? color = null, float fontEmSize = 8.0f)
         {
             this._DrawDebugRectangle = drawDebugRectangle ?? throw new ArgumentNullException(nameof(drawDebugRectangle));
             this._FontFamilyDrawTextDebugRectangle = fontFamily;

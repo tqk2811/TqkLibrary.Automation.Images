@@ -46,8 +46,10 @@ namespace TqkLibrary.Media.Images
         internal TapActionAsync? _TapCallbackAsync { get; private set; }
         internal Func<Task>? _WorkAsync { get; private set; }
 
-        internal Task<Bitmap> GetCaptureAsync() => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync)();
-        internal Bitmap GetTemplate(string name, int index) => (_Template ?? _WaitImageHelper._Template)(name, index);
+        internal Task<Bitmap> GetCaptureAsync() 
+            => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync ?? throw new InvalidOperationException("Capture is not set"))();
+        internal Bitmap GetTemplate(string name, int index) 
+            => (_Template ?? _WaitImageHelper._Template ?? throw new InvalidOperationException("Template is not set"))(name, index);
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _WaitImageHelper._Timeout(); } }
         internal int DelayStep { get { return _DelayStep.HasValue ? _DelayStep.Value : _WaitImageHelper.DelayStep; } }
         internal ImageNamesFilter? _ImageNamesFilter { get; private set; }

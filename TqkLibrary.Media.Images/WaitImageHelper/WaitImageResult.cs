@@ -72,7 +72,7 @@ namespace TqkLibrary.Media.Images
 
                             if (_waitImageBuilder._IsFirst)
                             {
-                                OpenCvFindResult result = await FindOutPointAsync(bitmap_capture, bitmap_template, crop).ConfigureAwait(false);
+                                OpenCvFindResult? result = await FindOutPointAsync(bitmap_capture, bitmap_template, crop).ConfigureAwait(false);
 
                                 if (result != null)
                                 {
@@ -149,7 +149,7 @@ namespace TqkLibrary.Media.Images
             return this;
         }
 
-        private Task<OpenCvFindResult> FindOutPointAsync(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop)
+        private Task<OpenCvFindResult?> FindOutPointAsync(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop)
         {
             if (_waitImageBuilder._WaitImageHelper.FindInThreadPool)
             {
@@ -174,13 +174,13 @@ namespace TqkLibrary.Media.Images
 
         private Task<bool> TapAsync(WaitImageDataResult waitImageDataResult)
         {
-            Task<bool> task = _waitImageBuilder._TapCallbackAsync?.Invoke(waitImageDataResult);
+            Task<bool>? task = _waitImageBuilder._TapCallbackAsync?.Invoke(waitImageDataResult);
             return task ?? Task.FromResult(false);
         }
 
         private Task DoAsync()
         {
-            Task task = _waitImageBuilder._WorkAsync?.Invoke();
+            Task? task = _waitImageBuilder._WorkAsync?.Invoke();
             return task ?? Task.CompletedTask;
         }
 

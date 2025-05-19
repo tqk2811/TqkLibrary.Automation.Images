@@ -61,7 +61,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="name"></param>
         /// <param name="index"></param>
         /// <returns></returns>
-        public Bitmap GetImage(string name, int index)
+        public Bitmap? GetImage(string name, int index)
         {
             string fileName = $"{name}{index}";
             if (ImageExit(fileName)) return GetImage(fileName);
