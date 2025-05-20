@@ -66,7 +66,7 @@ namespace TqkLibrary.Media.Images
             if (!string.IsNullOrWhiteSpace(_workingDir))
             {
                 string path = Path.Combine(_workingDir, $"{name}.json");
-                if (!File.Exists(path))
+                if (File.Exists(path))
                 {
                     string text = File.ReadAllText(path);
                     if (!string.IsNullOrWhiteSpace(text))
