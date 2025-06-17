@@ -80,8 +80,8 @@ namespace TqkLibrary.Media.Images
                                     _points.Add(dataResult);
                                     _waitImageBuilder._WaitImageHelper.WriteLog($"Found: {findNamesFilter[i]}{j} {result}");
                                     _lastFound = findNamesFilter[i];
-
-                                    if (await TapAsync(dataResult).ConfigureAwait(false))
+                                    ActionShould tapActionShould = await TapAsync(dataResult).ConfigureAwait(false);
+                                    if (tapActionShould == ActionShould.Continue)
                                     {
                                         //reset to while
                                         if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
@@ -111,12 +111,12 @@ namespace TqkLibrary.Media.Images
                         {
                             case TapFlag.All:
                                 {
-                                    List<bool> results = new List<bool>();
+                                    List<ActionShould> results = new List<ActionShould>();
                                     foreach (var point in _points)
                                     {
                                         results.Add(await TapAsync(point).ConfigureAwait(false));
                                     }
-                                    if (results.All(x => x))
+                                    if (results.All(x => x == ActionShould.Continue))
                                     {
                                         if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
                                         if (_waitImageBuilder._IsLoop) _points.Clear();
@@ -127,7 +127,8 @@ namespace TqkLibrary.Media.Images
                             case TapFlag.Random:
                                 {
                                     int random_index = _waitImageBuilder._WaitImageHelper._Random.Next(_points.Count);
-                                    if (await TapAsync(_points[random_index]).ConfigureAwait(false))
+                                    ActionShould tapActionShould = await TapAsync(_points[random_index]).ConfigureAwait(false);
+                                    if (tapActionShould == ActionShould.Continue)
                                     {
                                         if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
                                         if (_waitImageBuilder._IsLoop) _points.Clear();
@@ -172,10 +173,10 @@ namespace TqkLibrary.Media.Images
             }
         }
 
-        private Task<bool> TapAsync(WaitImageDataResult waitImageDataResult)
+        private Task<ActionShould> TapAsync(WaitImageDataResult waitImageDataResult)
         {
-            Task<bool>? task = _waitImageBuilder._TapCallbackAsync?.Invoke(waitImageDataResult);
-            return task ?? Task.FromResult(false);
+            Task<ActionShould>? task = _waitImageBuilder._TapCallbackAsync?.Invoke(waitImageDataResult);
+            return task ?? Task.FromResult(ActionShould.Break);
         }
 
         private Task DoAsync()

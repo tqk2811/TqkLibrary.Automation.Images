@@ -11,13 +11,13 @@ namespace TqkLibrary.Media.Images
     /// </summary>
     /// <param name="dataResult"></param>
     /// <returns></returns>
-    public delegate bool TapAction(WaitImageDataResult dataResult);
+    public delegate ActionShould TapAction(WaitImageDataResult dataResult);
     /// <summary>
     /// 
     /// </summary>
     /// <param name="dataResult"></param>
     /// <returns></returns>
-    public delegate Task<bool> TapActionAsync(WaitImageDataResult dataResult);
+    public delegate Task<ActionShould> TapActionAsync(WaitImageDataResult dataResult);
 
     /// <summary>
     /// 
