@@ -3,21 +3,22 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TqkLibrary.Media.Images.WaitImageHelpers.Enums;
 
-namespace TqkLibrary.Media.Images
+namespace TqkLibrary.Media.Images.WaitImageHelpers
 {
     /// <summary>
     /// 
     /// </summary>
     /// <param name="dataResult"></param>
     /// <returns></returns>
-    public delegate ActionShould TapAction(WaitImageDataResult dataResult);
+    public delegate ActionShould TapActionDelegate(WaitImageDataResult dataResult);
     /// <summary>
     /// 
     /// </summary>
     /// <param name="dataResult"></param>
     /// <returns></returns>
-    public delegate Task<ActionShould> TapActionAsync(WaitImageDataResult dataResult);
+    public delegate Task<ActionShould> TapActionAsyncDelegate(WaitImageDataResult dataResult);
 
     /// <summary>
     /// 
@@ -43,7 +44,7 @@ namespace TqkLibrary.Media.Images
         internal bool _IsFirst { get; private set; } = true;
         internal bool _IsLoop { get; set; } = true;
         internal bool _ResetTimeout { get; private set; } = true;
-        internal TapActionAsync? _TapCallbackAsync { get; private set; }
+        internal TapActionAsyncDelegate? _TapCallbackAsync { get; private set; }
         internal Func<Task>? _WorkAsync { get; private set; }
 
         internal Task<Bitmap> GetCaptureAsync() 
@@ -99,7 +100,7 @@ namespace TqkLibrary.Media.Images
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(TapAction tapAction)
+        public WaitImageBuilder AndTapFirst(TapActionDelegate tapAction)
         {
             if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
             this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
@@ -113,7 +114,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(TapActionAsync tapActionAsync)
+        public WaitImageBuilder AndTapFirst(TapActionAsyncDelegate tapActionAsync)
         {
             this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
             _IsFirst = true;
@@ -130,7 +131,7 @@ namespace TqkLibrary.Media.Images
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(TapAction tapAction)
+        public WaitImageBuilder AndTapRandom(TapActionDelegate tapAction)
         {
             if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
             this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
@@ -144,7 +145,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(TapActionAsync tapActionAsync)
+        public WaitImageBuilder AndTapRandom(TapActionAsyncDelegate tapActionAsync)
         {
             this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
             _IsFirst = false;
@@ -161,7 +162,7 @@ namespace TqkLibrary.Media.Images
         /// </br>return: if true, continue find. Else return</param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(TapAction tapAction)
+        public WaitImageBuilder AndTapAll(TapActionDelegate tapAction)
         {
             if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
             this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
@@ -175,7 +176,7 @@ namespace TqkLibrary.Media.Images
         /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(TapActionAsync tapActionAsync)
+        public WaitImageBuilder AndTapAll(TapActionAsyncDelegate tapActionAsync)
         {
             this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
             _IsFirst = false;

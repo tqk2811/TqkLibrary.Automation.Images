@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace TqkLibrary.Media.Images
+namespace TqkLibrary.Media.Images.WaitImageHelpers
 {
     /// <summary>
     /// 

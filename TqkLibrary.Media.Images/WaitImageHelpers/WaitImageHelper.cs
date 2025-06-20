@@ -6,7 +6,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TqkLibrary.Media.Images
+namespace TqkLibrary.Media.Images.WaitImageHelpers
 {
     /// <summary>
     /// 

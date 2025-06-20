@@ -1,4 +1,4 @@
-﻿namespace TqkLibrary.Media.Images
+﻿namespace TqkLibrary.Media.Images.WaitImageHelpers.Enums
 {
     /// <summary>
     /// 
