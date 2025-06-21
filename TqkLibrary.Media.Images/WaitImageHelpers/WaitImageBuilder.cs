@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using TqkLibrary.Media.Images.TapHelpers;
 using TqkLibrary.Media.Images.WaitImageHelpers.Enums;
 
 namespace TqkLibrary.Media.Images.WaitImageHelpers
@@ -47,9 +48,9 @@ namespace TqkLibrary.Media.Images.WaitImageHelpers
         internal TapActionAsyncDelegate? _TapCallbackAsync { get; private set; }
         internal Func<Task>? _WorkAsync { get; private set; }
 
-        internal Task<Bitmap> GetCaptureAsync() 
+        internal Task<Bitmap> GetCaptureAsync()
             => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync ?? throw new InvalidOperationException("Capture is not set"))();
-        internal Bitmap GetTemplate(string name, int index) 
+        internal Bitmap GetTemplate(string name, int index)
             => (_Template ?? _WaitImageHelper._Template ?? throw new InvalidOperationException("Template is not set"))(name, index);
         internal int GetTimeout { get { return _Timeout.HasValue ? _Timeout.Value : _WaitImageHelper._Timeout(); } }
         internal int DelayStep { get { return _DelayStep.HasValue ? _DelayStep.Value : _WaitImageHelper.DelayStep; } }
@@ -117,6 +118,21 @@ namespace TqkLibrary.Media.Images.WaitImageHelpers
         public WaitImageBuilder AndTapFirst(TapActionAsyncDelegate tapActionAsync)
         {
             this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
+            _IsFirst = true;
+            _Tapflag = TapFlag.First;
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tapBuilder"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder AndTapFirst(TapBuilder tapBuilder)
+        {
+            if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
+            this._TapCallbackAsync = tapBuilder.HandlerAsync;
             _IsFirst = true;
             _Tapflag = TapFlag.First;
             return this;
