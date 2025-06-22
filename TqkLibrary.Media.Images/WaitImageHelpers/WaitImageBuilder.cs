@@ -172,6 +172,21 @@ namespace TqkLibrary.Media.Images.WaitImageHelpers
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="tapBuilder"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder AndTapRandom(TapBuilder tapBuilder)
+        {
+            if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
+            this._TapCallbackAsync = tapBuilder.HandlerAsync;
+            _IsFirst = false;
+            _Tapflag = TapFlag.Random;
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="tapAction">bool (index,point,finds)<br>
         /// </br>index: found at index of finds<br>
         /// </br>point: point found<br>
@@ -186,6 +201,7 @@ namespace TqkLibrary.Media.Images.WaitImageHelpers
             _Tapflag = TapFlag.All;
             return this;
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -195,6 +211,21 @@ namespace TqkLibrary.Media.Images.WaitImageHelpers
         public WaitImageBuilder AndTapAll(TapActionAsyncDelegate tapActionAsync)
         {
             this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
+            _IsFirst = false;
+            _Tapflag = TapFlag.All;
+            return this;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tapBuilder"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public WaitImageBuilder AndTapAll(TapBuilder tapBuilder)
+        {
+            if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
+            this._TapCallbackAsync = tapBuilder.HandlerAsync;
             _IsFirst = false;
             _Tapflag = TapFlag.All;
             return this;
