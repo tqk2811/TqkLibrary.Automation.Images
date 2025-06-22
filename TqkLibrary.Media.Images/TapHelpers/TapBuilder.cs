@@ -64,47 +64,24 @@ namespace TqkLibrary.Media.Images.TapHelpers
             return this;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        public TapBuilder Tap(params string[] names)
-            => BaseTap(true, ActionShould.Continue, names);
 
         /// <summary>
         /// 
         /// </summary>
-        public TapBuilder TapBreak(params string[] names)
-            => BaseTap(true, ActionShould.Break, names);
+        public TapBuilderTap Tap() => new TapBuilderTap(this, true);
+        /// <summary>
+        /// 
+        /// </summary>
+        public TapBuilderTap NonTap() => new TapBuilderTap(this, false);
 
         /// <summary>
         /// 
         /// </summary>
-        public TapBuilder NonTapBreak(params string[] names)
-            => BaseTap(false, ActionShould.Break, names);
-
-
-        async Task<Point> _CenterHAsync(TapHelper tapHelper, Point point)
-        {
-            Size size = await tapHelper.GetScreenSizeAsync();
-            return new Point(size.Width / 2, point.Y);
-        }
+        public TapBuilderTap Tap(params string[] names) => new TapBuilderTap(this, true).Name(names);
         /// <summary>
         /// 
         /// </summary>
-        public TapBuilder TapCenterH(params string[] names)
-            => BaseTap(true, ActionShould.Continue, _CenterHAsync, names);
-
-        async Task<Point> _CenterVAsync(TapHelper tapHelper, Point point)
-        {
-            Size size = await tapHelper.GetScreenSizeAsync();
-            return new Point(point.X, size.Height / 2);
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        public TapBuilder TapCenterV(params string[] names)
-            => BaseTap(true, ActionShould.Continue, _CenterVAsync, names);
-
+        public TapBuilderTap NonTap(params string[] names) => new TapBuilderTap(this, false).Name(names);
 
 
         /// <summary>
