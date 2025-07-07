@@ -9,6 +9,7 @@
 		<projectUrl>https://github.com/tqk2811/TqkLibrary.Automation.Images</projectUrl>
 		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.Automation.Images.git"/>
 		<license type="expression">MIT</license>
+		<readme>docs\README.md</readme>
 		<dependencies>
 			<group targetFramework="net8.0-windows10.0.17763">
 				<dependency id="Emgu.CV" version="4.10.0.5680" />
@@ -20,6 +21,7 @@
 		</dependencies>
 	</metadata>
 	<files>
+		<file src="..\README.md" target="docs\README.md" />
 		<file src="bin\Release\**\$id$.dll" target="lib\" />
 		<file src="bin\Release\**\$id$.pdb" target="lib\" />
 		<file src="bin\Release\**\$id$.xml" target="lib\" />
