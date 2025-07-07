@@ -3,7 +3,7 @@ using Emgu.CV.Structure;
 using System.Collections.Generic;
 using System.Drawing;
 
-namespace TqkLibrary.Media.Images
+namespace TqkLibrary.Automation.Images
 {
     /// <summary>
     /// 

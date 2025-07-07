@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace TqkLibrary.Media.Images.Test {
+namespace TqkLibrary.Automation.Images.Test {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace TqkLibrary.Media.Images.Test {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TqkLibrary.Media.Images.Test.Resource", typeof(Resource).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("TqkLibrary.Automation.Images.Test.Resource", typeof(Resource).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;

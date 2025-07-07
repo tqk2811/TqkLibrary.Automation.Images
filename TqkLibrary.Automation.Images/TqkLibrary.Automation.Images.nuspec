@@ -6,8 +6,8 @@
 		<version>1.0.0-build$buildDay$$buildIndex$</version>
 		<description>my private lib</description>
 		<authors>tqk2811</authors>
-		<projectUrl>https://github.com/tqk2811/TqkLibrary.Media.Images</projectUrl>
-		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.Media.Images.git"/>
+		<projectUrl>https://github.com/tqk2811/TqkLibrary.Automation.Images</projectUrl>
+		<repository type="git" url="https://github.com/tqk2811/TqkLibrary.Automation.Images.git"/>
 		<license type="expression">MIT</license>
 		<dependencies>
 			<group targetFramework="net8.0-windows10.0.17763">

@@ -1,6 +1,6 @@
 ﻿using System.Threading;
 
-namespace TqkLibrary.Media.Images
+namespace TqkLibrary.Automation.Images
 {
     /// <summary>
     /// 

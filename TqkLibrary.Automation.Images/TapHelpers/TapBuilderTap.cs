@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
 using System.Threading.Tasks;
-using TqkLibrary.Media.Images.WaitImageHelpers.Enums;
+using TqkLibrary.Automation.Images.WaitImageHelpers.Enums;
 
-namespace TqkLibrary.Media.Images.TapHelpers
+namespace TqkLibrary.Automation.Images.TapHelpers
 {
     /// <summary>
     /// 

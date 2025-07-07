@@ -3,10 +3,10 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using TqkLibrary.Media.Images.TapHelpers;
-using TqkLibrary.Media.Images.WaitImageHelpers.Enums;
+using TqkLibrary.Automation.Images.TapHelpers;
+using TqkLibrary.Automation.Images.WaitImageHelpers.Enums;
 
-namespace TqkLibrary.Media.Images.WaitImageHelpers
+namespace TqkLibrary.Automation.Images.WaitImageHelpers
 {
     /// <summary>
     /// 

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
-namespace TqkLibrary.Media.Images
+namespace TqkLibrary.Automation.Images
 {
     /// <summary>
     /// 

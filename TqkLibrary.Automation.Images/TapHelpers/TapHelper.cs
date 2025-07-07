@@ -4,7 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TqkLibrary.Media.Images.TapHelpers
+namespace TqkLibrary.Automation.Images.TapHelpers
 {
     /// <summary>
     /// 

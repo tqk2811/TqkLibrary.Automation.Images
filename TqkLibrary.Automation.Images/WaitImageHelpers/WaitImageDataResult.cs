@@ -1,7 +1,7 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
-namespace TqkLibrary.Media.Images.WaitImageHelpers
+namespace TqkLibrary.Automation.Images.WaitImageHelpers
 {
     /// <summary>
     /// 

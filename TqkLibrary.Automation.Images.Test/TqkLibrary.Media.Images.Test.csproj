@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\TqkLibrary.Media.Images\TqkLibrary.Media.Images.csproj" />
+    <ProjectReference Include="..\TqkLibrary.Automation.Images\TqkLibrary.Automation.Images.csproj" />
   </ItemGroup>
 
   <ItemGroup>
