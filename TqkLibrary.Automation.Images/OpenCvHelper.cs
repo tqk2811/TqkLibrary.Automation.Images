@@ -10,13 +10,6 @@ namespace TqkLibrary.Automation.Images
     /// </summary>
     public static class OpenCvHelper
     {
-        static Image<Bgr, byte> ToImageLockHelper(this Bitmap bitmap)
-        {
-            using var lock_obj = bitmap.LockHepler();
-            return bitmap.ToImage<Bgr, byte>();
-        }
-
-
         /// <summary>
         /// 
         /// </summary>
