@@ -1,5 +1,7 @@
 ﻿using Emgu.CV;
+using Emgu.CV.CvEnum;
 using Emgu.CV.Structure;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 
@@ -23,8 +25,8 @@ namespace TqkLibrary.Automation.Images
                 return null;
 
             Size subBitmapSize = subBitmap.Size;
-                if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
-                    return null;
+            if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
+                return null;
 
             using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
             using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
@@ -107,8 +109,8 @@ namespace TqkLibrary.Automation.Images
                 return results;
 
             Size subBitmapSize = subBitmap.Size;
-                if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
-                    return results;
+            if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
+                return results;
 
 
             using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
@@ -173,12 +175,75 @@ namespace TqkLibrary.Automation.Images
             if (crop == null) return FindOutPoints(mainBitmap, subBitmap, percent);
             else return FindOutPoints(mainBitmap, subBitmap, crop.Value, percent);
         }
-        //public static Bitmap CropNonTransparent(Bitmap bitmap)
-        //{
-        //  using Image<Bgra, byte> imageIn = bitmap.ToImage<Bgra, byte>();
-        //  using Mat mat = new Mat(/*imageIn.Size, Emgu.CV.CvEnum.DepthType.Cv8U, 1*/);
-        //  CvInvoke.FindNonZero(imageIn, mat);
-        //  return mat.ToBitmap();
-        //}
+
+
+
+
+
+
+
+
+
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <typeparam name="TColor"></typeparam>
+        /// <typeparam name="TDepth"></typeparam>
+        /// <param name="image"></param>
+        /// <param name="template"></param>
+        /// <param name="percent"></param>
+        /// <param name="findAll"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentNullException"></exception>
+        public static List<OpenCvFindResult> FindOutPoints<TColor, TDepth>(
+            Image<TColor, TDepth> image,
+            Image<TColor, TDepth> template,
+            double percent = 0.9,
+            bool findAll = false
+            )
+            where TColor : struct, IColor
+            where TDepth : new()
+        {
+            List<OpenCvFindResult> results = new List<OpenCvFindResult>();
+
+            if (image is null)
+                throw new ArgumentNullException(nameof(image));
+            if (template is null)
+                throw new ArgumentNullException(nameof(template));
+
+            if (template.Width > image.Width || template.Height > image.Height)
+                return results;
+
+            using Image<TColor, TDepth>? clone = findAll ? image.Clone() : null;
+            while (findAll)
+            {
+                using Image<Gray, float> match = (findAll ? clone! : image).MatchTemplate(template, TemplateMatchingType.CcoeffNormed);
+
+                double[] minValues, maxValues;
+                Point[] minLocations, maxLocations;
+                match.MinMax(out minValues, out maxValues, out minLocations, out maxLocations);
+
+                if (maxValues[0] > percent)
+                {
+                    Rectangle rect = new Rectangle(maxLocations[0], template.Size);
+                    if (findAll)
+                    {
+                        clone!.Draw(rect, new TColor(), -1);
+                    }
+                    Point center = new Point(maxLocations[0].X + template.Width / 2, maxLocations[0].Y + template.Height / 2);
+                    results.Add(new OpenCvFindResult()
+                    {
+                        Point = center,
+                        Percent = maxValues[0]
+                    });
+                }
+                else break;
+            }
+            return results;
+        }
+
+
+
     }
 }
