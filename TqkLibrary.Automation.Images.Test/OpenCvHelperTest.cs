@@ -12,17 +12,19 @@ namespace TqkLibrary.Automation.Images.Test
         [TestMethod]
         public void FindOutPoint()
         {
-            var point = OpenCvHelper.FindOutPoint(Resource.baseImage, Resource.searchImage, 0.9);
+            using Bitmap baseImage = (Bitmap)Bitmap.FromFile(".\\Resources\\baseImage.png");
+            using Bitmap searchImage = (Bitmap)Bitmap.FromFile(".\\Resources\\searchImage.png");
+            var point = OpenCvHelper.FindOutPoints(baseImage, searchImage, 0.9);
         }
 
         [TestMethod]
         public void ThressHold()
         {
-            var from = (Bitmap)Bitmap.FromFile(@"C:\Users\tqk28\Downloads\test.jpg");
+            var from = (Bitmap)Bitmap.FromFile(".\\Resources\\baseImage.png");
             ImageUtil.ToGrayScale(from);
             var to = ImageUtil.Threshold(from, 0.1f);
-            from.Save("D:\\ToGrayScale.png", ImageFormat.Png);
-            to.Save("D:\\Threshold.png", ImageFormat.Png);
+            from.Save(".\\ToGrayScale.png", ImageFormat.Png);
+            to.Save(".\\Threshold.png", ImageFormat.Png);
         }
     }
 }
