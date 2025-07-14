@@ -22,17 +22,12 @@ namespace TqkLibrary.Automation.Images
             if (subBitmap == null || mainBitmap == null)
                 return null;
 
-            Size subBitmapSize;
-            using (var main = mainBitmap.LockHepler())
-            {
-                using var sub = subBitmap.LockHepler();
-                subBitmapSize = subBitmap.Size;
+            Size subBitmapSize = subBitmap.Size;
                 if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
                     return null;
-            }
 
-            using Image<Bgr, byte> source = mainBitmap.ToImageLockHelper();
-            using Image<Bgr, byte> template = subBitmap.ToImageLockHelper();
+            using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
+            using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
             Point? resPoint = null;
             double currentMax = 0;
 
@@ -111,18 +106,13 @@ namespace TqkLibrary.Automation.Images
             if (subBitmap == null || mainBitmap == null)
                 return results;
 
-            Size subBitmapSize;
-            using (var main = mainBitmap.LockHepler())
-            {
-                using var sub = subBitmap.LockHepler();
-                subBitmapSize = subBitmap.Size;
+            Size subBitmapSize = subBitmap.Size;
                 if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
                     return results;
-            }
 
 
-            using Image<Bgr, byte> source = mainBitmap.ToImageLockHelper();
-            using Image<Bgr, byte> template = subBitmap.ToImageLockHelper();
+            using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
+            using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
             while (true)
             {
                 using (Image<Gray, float> match = source.MatchTemplate(template, Emgu.CV.CvEnum.TemplateMatchingType.CcoeffNormed))
