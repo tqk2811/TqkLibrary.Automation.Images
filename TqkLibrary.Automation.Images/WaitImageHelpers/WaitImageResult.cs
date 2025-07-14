@@ -78,6 +78,10 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
 
                                 if (result != null)
                                 {
+                                    if (crop.HasValue)
+                                    {
+                                        result.Point = new Point(result.Point.X + crop.Value.X, result.Point.Y + crop.Value.Y);
+                                    }
                                     WaitImageDataResult dataResult = new WaitImageDataResult(findNamesFilter[i], result);
                                     _points.Add(dataResult);
                                     _waitImageBuilder._WaitImageHelper.WriteLog($"Found: {findNamesFilter[i]}{j} {result}");
@@ -95,13 +99,21 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                             }
                             else
                             {
-                                var points = await FindOutPointsAsync(bitmap_capture_crop, bitmap_template);
-                                if (points.Count > 0)
+                                var results = await FindOutPointsAsync(bitmap_capture_crop, bitmap_template);
+                                if (results.Count > 0)
                                 {
-                                    _waitImageBuilder._WaitImageHelper.WriteLog($"Found: {findNamesFilter[i]}{j} {points.Count} points ({string.Join("|", points)})");
+                                    if (crop.HasValue)
+                                    {
+                                        foreach(var result in results)
+                                        {
+                                            result.Point = new Point(result.Point.X + crop.Value.X, result.Point.Y + crop.Value.Y);
+                                        }
+                                    }
+
+                                    _waitImageBuilder._WaitImageHelper.WriteLog($"Found: {findNamesFilter[i]}{j} {results.Count} points ({string.Join("|", results)})");
                                     _lastFound = findNamesFilter[i];
 
-                                    _points.AddRange(points.Select(x => new WaitImageDataResult(findNamesFilter[i], x)));
+                                    _points.AddRange(results.Select(x => new WaitImageDataResult(findNamesFilter[i], x)));
                                 }
                             }
                         }
