@@ -115,13 +115,15 @@ namespace TqkLibrary.Automation.Images
         /// <param name="template"></param>
         /// <param name="percent"></param>
         /// <param name="findAll"></param>
+        /// <param name="templateMatchingType"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
         public static List<OpenCvFindResult> FindTemplates<TColor, TDepth>(
             Image<TColor, TDepth> image,
             Image<TColor, TDepth> template,
             double percent = 0.9,
-            bool findAll = false
+            bool findAll = false,
+            TemplateMatchingType templateMatchingType = TemplateMatchingType.CcoeffNormed
             )
             where TColor : struct, IColor
             where TDepth : new()
@@ -139,7 +141,7 @@ namespace TqkLibrary.Automation.Images
             using Image<TColor, TDepth>? clone = findAll ? image.Clone() : null;
             while (findAll)
             {
-                using Image<Gray, float> match = (findAll ? clone! : image).MatchTemplate(template, TemplateMatchingType.CcoeffNormed);
+                using Image<Gray, float> match = (findAll ? clone! : image).MatchTemplate(template, templateMatchingType);
 
                 double[] minValues, maxValues;
                 Point[] minLocations, maxLocations;
