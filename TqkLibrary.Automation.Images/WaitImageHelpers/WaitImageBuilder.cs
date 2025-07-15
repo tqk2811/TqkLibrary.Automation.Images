@@ -20,6 +20,13 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
     /// <param name="dataResult"></param>
     /// <returns></returns>
     public delegate Task<ActionShould> TapActionAsyncDelegate(WaitImageDataResult dataResult);
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="imageNames"></param>
+    /// <param name="lastFound"></param>
+    /// <returns></returns>
+    public delegate IEnumerable<string> ImageNamesFilter(IEnumerable<string> imageNames, string lastFound);
 
     /// <summary>
     /// 
@@ -27,11 +34,12 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
     public class WaitImageBuilder
     {
         internal WaitImageHelper _WaitImageHelper { get; }
-        internal WaitImageBuilder(WaitImageHelper waitImageHelper, params string[] finds)
+        internal WaitImageBuilder(WaitImageHelper waitImageHelper, bool isLoop, params string[] finds)
         {
             this._Finds = finds ?? throw new ArgumentNullException(nameof(finds));
             if (finds.Length == 0) throw new ArgumentNullException(nameof(finds));
             this._WaitImageHelper = waitImageHelper ?? throw new ArgumentNullException(nameof(waitImageHelper));
+            this._IsLoop = isLoop;
         }
 
         private int? _Timeout = null;
@@ -40,13 +48,12 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         Func<string, int, Bitmap>? _Template;
 
         internal string[] _Finds { get; }
-        internal TapFlag _Tapflag { get; private set; } = TapFlag.None;
+        internal TapFlag _Tapflag { get; private set; } = TapFlag.First;
         internal bool _IsThrow { get; private set; } = false;
-        internal bool _IsFirst { get; private set; } = true;
-        internal bool _IsLoop { get; set; } = true;
+        internal bool _IsLoop { get; } = true;
         internal bool _ResetTimeout { get; private set; } = true;
         internal TapActionAsyncDelegate? _TapCallbackAsync { get; private set; }
-        internal Func<Task>? _WorkAsync { get; private set; }
+        internal Func<Task>? _BeforeFindAsync { get; private set; }
 
         internal Task<Bitmap> GetCaptureAsync()
             => (_CaptureAsync ?? _WaitImageHelper._CaptureAsync ?? throw new InvalidOperationException("Capture is not set"))();
@@ -70,6 +77,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             return this;
         }
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -92,172 +100,85 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             return this;
         }
 
+
+
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapAction">bool (index,point,finds)<br>
-        /// </br>index: found at index of finds<br>
-        /// </br>point: point found<br>
-        /// </br>return: if true, continue find. Else return</param>
+        /// <param name="tapFlag"></param>
+        /// <param name="tapAction"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(TapActionDelegate tapAction)
+        public WaitImageBuilder AndTap(TapFlag tapFlag, TapActionDelegate tapAction)
         {
             if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
             this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
-            _IsFirst = true;
-            _Tapflag = TapFlag.First;
+            _Tapflag = tapFlag;
             return this;
         }
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="tapFlag"></param>
         /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(TapActionAsyncDelegate tapActionAsync)
+        public WaitImageBuilder AndTap(TapFlag tapFlag, TapActionAsyncDelegate tapActionAsync)
         {
-            this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
-            _IsFirst = true;
-            _Tapflag = TapFlag.First;
+            if (tapActionAsync is null) throw new ArgumentNullException(nameof(tapActionAsync));
+            this._TapCallbackAsync = tapActionAsync;
+            _Tapflag = tapFlag;
             return this;
         }
-
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="tapFlag"></param>
         /// <param name="tapBuilder"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapFirst(TapBuilder tapBuilder)
+        public WaitImageBuilder AndTap(TapFlag tapFlag, TapBuilder tapBuilder)
         {
             if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
             this._TapCallbackAsync = tapBuilder.HandlerAsync;
-            _IsFirst = true;
-            _Tapflag = TapFlag.First;
+            _Tapflag = tapFlag;
             return this;
         }
+
+
+
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapAction">bool (index,point,finds)<br>
-        /// </br>index: found at index of finds<br>
-        /// </br>point: point found<br>
-        /// </br>return: if true, continue find. Else return</param>
+        /// <param name="beforeFindAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(TapActionDelegate tapAction)
+        public WaitImageBuilder BeforeFind(Func<Task> beforeFindAsync)
         {
-            if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
-            this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
-            _IsFirst = false;
-            _Tapflag = TapFlag.Random;
+            this._BeforeFindAsync = beforeFindAsync ?? throw new ArgumentNullException(nameof(beforeFindAsync));
             return this;
         }
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="tapActionAsync"></param>
+        /// <param name="beforeFind"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(TapActionAsyncDelegate tapActionAsync)
+        public WaitImageBuilder BeforeFind(Action beforeFind)
         {
-            this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
-            _IsFirst = false;
-            _Tapflag = TapFlag.Random;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tapBuilder"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapRandom(TapBuilder tapBuilder)
-        {
-            if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
-            this._TapCallbackAsync = tapBuilder.HandlerAsync;
-            _IsFirst = false;
-            _Tapflag = TapFlag.Random;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tapAction">bool (index,point,finds)<br>
-        /// </br>index: found at index of finds<br>
-        /// </br>point: point found<br>
-        /// </br>return: if true, continue find. Else return</param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(TapActionDelegate tapAction)
-        {
-            if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
-            this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
-            _IsFirst = false;
-            _Tapflag = TapFlag.All;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tapActionAsync"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(TapActionAsyncDelegate tapActionAsync)
-        {
-            this._TapCallbackAsync = tapActionAsync ?? throw new ArgumentNullException(nameof(tapActionAsync));
-            _IsFirst = false;
-            _Tapflag = TapFlag.All;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="tapBuilder"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder AndTapAll(TapBuilder tapBuilder)
-        {
-            if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
-            this._TapCallbackAsync = tapBuilder.HandlerAsync;
-            _IsFirst = false;
-            _Tapflag = TapFlag.All;
-            return this;
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="workAsync"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder Do(Func<Task> workAsync)
-        {
-            this._WorkAsync = workAsync ?? throw new ArgumentNullException(nameof(workAsync));
-            return this;
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="work"></param>
-        /// <returns></returns>
-        /// <exception cref="ArgumentNullException"></exception>
-        public WaitImageBuilder Do(Action work)
-        {
-            if (work is null) throw new ArgumentNullException(nameof(work));
-            this._WorkAsync = () =>
+            if (beforeFind is null) throw new ArgumentNullException(nameof(beforeFind));
+            this._BeforeFindAsync = () =>
             {
-                work.Invoke();
+                beforeFind.Invoke();
                 return Task.CompletedTask;
             };
             return this;
         }
+
+
+
+
 
         /// <summary>
         /// 
@@ -295,13 +216,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             return this;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="imageNames"></param>
-        /// <param name="lastFound"></param>
-        /// <returns></returns>
-        public delegate IEnumerable<string> ImageNamesFilter(IEnumerable<string> imageNames, string lastFound);
+
         /// <summary>
         /// 
         /// </summary>
@@ -313,6 +228,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             return this;
         }
 
+
         /// <summary>
         /// 
         /// </summary>
@@ -322,6 +238,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             _IsThrow = true;
             return this;
         }
+
 
         /// <summary>
         /// 

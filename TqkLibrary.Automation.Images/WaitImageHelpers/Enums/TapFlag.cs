@@ -1,10 +1,11 @@
 ﻿namespace TqkLibrary.Automation.Images.WaitImageHelpers.Enums
 {
-    internal enum TapFlag
+#pragma warning disable CS1591 // Missing XML comment for publicly visible type or member
+    public enum TapFlag
     {
-        None,
         First,
         Random,
         All
     }
+#pragma warning restore CS1591 // Missing XML comment for publicly visible type or member
 }

@@ -23,6 +23,12 @@ namespace TqkLibrary.Automation.Images.TapHelpers
             IsTap = true,
             ActionShould = ActionShould.Continue,
         };
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public IEnumerable<string> Names => _name;
+        readonly List<string> _name = new();//for save order
         readonly Dictionary<string, TapData> _taps = new Dictionary<string, TapData>();
         readonly TapHelper _tapHelper;
         internal TapBuilder(TapHelper tapHelper)
@@ -60,6 +66,8 @@ namespace TqkLibrary.Automation.Images.TapHelpers
             foreach (var name in names)
             {
                 _taps[name] = tapData;
+                if (!_name.Contains(name))
+                    _name.Add(name);
             }
             return this;
         }

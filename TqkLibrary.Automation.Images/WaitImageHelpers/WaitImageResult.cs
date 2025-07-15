@@ -72,7 +72,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                             }
                             using Bitmap bitmap_capture_crop = crop.HasValue ? bitmap_capture.CropImage(crop.Value) : bitmap_capture;
 
-                            if (_waitImageBuilder._IsFirst)
+                            if (_waitImageBuilder._Tapflag == TapFlag.First)
                             {
                                 OpenCvFindResult? result = await FindTemplateAsync(bitmap_capture_crop, bitmap_template).ConfigureAwait(false);
 
@@ -104,7 +104,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                 {
                                     if (crop.HasValue)
                                     {
-                                        foreach(var result in results)
+                                        foreach (var result in results)
                                         {
                                             result.Point = new Point(result.Point.X + crop.Value.X, result.Point.Y + crop.Value.Y);
                                         }
@@ -119,7 +119,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                         }
                     }
 
-                    if (!_waitImageBuilder._IsFirst && _points.Count > 0)
+                    if (_waitImageBuilder._Tapflag != TapFlag.First && _points.Count > 0)
                     {
                         switch (_waitImageBuilder._Tapflag)
                         {
@@ -195,7 +195,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
 
         private Task DoAsync()
         {
-            Task? task = _waitImageBuilder._WorkAsync?.Invoke();
+            Task? task = _waitImageBuilder._BeforeFindAsync?.Invoke();
             return task ?? Task.CompletedTask;
         }
 

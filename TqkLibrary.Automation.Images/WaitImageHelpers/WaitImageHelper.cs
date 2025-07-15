@@ -5,6 +5,8 @@ using System.Drawing.Text;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TqkLibrary.Automation.Images.TapHelpers;
+using TqkLibrary.Automation.Images.WaitImageHelpers.Enums;
 
 namespace TqkLibrary.Automation.Images.WaitImageHelpers
 {
@@ -248,7 +250,19 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public WaitImageBuilder WaitUntil(params string[] finds)
         {
             Check();
-            return new WaitImageBuilder(this, finds);
+            return new WaitImageBuilder(this, true, finds);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tapFlag"></param>
+        /// <param name="tapBuilder"></param>
+        /// <returns></returns>
+        public WaitImageBuilder WaitUntil(TapFlag tapFlag, TapBuilder tapBuilder)
+        {
+            Check();
+            return new WaitImageBuilder(this, true, tapBuilder.Names.ToArray())
+                .AndTap(tapFlag, tapBuilder);
         }
         /// <summary>
         /// 
@@ -258,8 +272,21 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public WaitImageBuilder FindImage(params string[] finds)
         {
             Check();
-            return new WaitImageBuilder(this, finds) { _IsLoop = false };
+            return new WaitImageBuilder(this, false, finds);
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="tapFlag"></param>
+        /// <param name="tapBuilder"></param>
+        /// <returns></returns>
+        public WaitImageBuilder FindImage(TapFlag tapFlag, TapBuilder tapBuilder)
+        {
+            Check();
+            return new WaitImageBuilder(this, false, tapBuilder.Names.ToArray())
+                .AndTap(tapFlag, tapBuilder);
+        }
+
 
 
         void Check()
