@@ -14,7 +14,7 @@ namespace TqkLibrary.Automation.Images.Test
         {
             using Bitmap baseImage = (Bitmap)Bitmap.FromFile(".\\Resources\\baseImage.png");
             using Bitmap searchImage = (Bitmap)Bitmap.FromFile(".\\Resources\\searchImage.png");
-            var point = OpenCvHelper.FindOutPoints(baseImage, searchImage, 0.9);
+            var point = OpenCvHelper.FindTemplates(baseImage, searchImage, 0.9);
         }
 
         [TestMethod]

@@ -74,7 +74,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
 
                             if (_waitImageBuilder._IsFirst)
                             {
-                                OpenCvFindResult? result = await FindOutPointAsync(bitmap_capture_crop, bitmap_template).ConfigureAwait(false);
+                                OpenCvFindResult? result = await FindTemplateAsync(bitmap_capture_crop, bitmap_template).ConfigureAwait(false);
 
                                 if (result != null)
                                 {
@@ -99,7 +99,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                             }
                             else
                             {
-                                var results = await FindOutPointsAsync(bitmap_capture_crop, bitmap_template);
+                                var results = await FindTemplatesAsync(bitmap_capture_crop, bitmap_template);
                                 if (results.Count > 0)
                                 {
                                     if (crop.HasValue)
@@ -164,26 +164,26 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             return this;
         }
 
-        private Task<OpenCvFindResult?> FindOutPointAsync(Bitmap mainBitmap, Bitmap subBitmap)
+        private Task<OpenCvFindResult?> FindTemplateAsync(Bitmap mainBitmap, Bitmap subBitmap)
         {
             if (_waitImageBuilder._WaitImageHelper.FindInThreadPool)
             {
-                return Task.Run(() => OpenCvHelper.FindOutPoint(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
+                return Task.Run(() => OpenCvHelper.FindTemplate(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
             }
             else
             {
-                return Task.FromResult(OpenCvHelper.FindOutPoint(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
+                return Task.FromResult(OpenCvHelper.FindTemplate(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
             }
         }
-        private Task<List<OpenCvFindResult>> FindOutPointsAsync(Bitmap mainBitmap, Bitmap subBitmap)
+        private Task<List<OpenCvFindResult>> FindTemplatesAsync(Bitmap mainBitmap, Bitmap subBitmap)
         {
             if (_waitImageBuilder._WaitImageHelper.FindInThreadPool)
             {
-                return Task.Run(() => OpenCvHelper.FindOutPoints(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
+                return Task.Run(() => OpenCvHelper.FindTemplates(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
             }
             else
             {
-                return Task.FromResult(OpenCvHelper.FindOutPoints(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
+                return Task.FromResult(OpenCvHelper.FindTemplates(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
             }
         }
 
