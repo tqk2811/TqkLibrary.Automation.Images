@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Emgu.CV.Structure;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Text.RegularExpressions;
@@ -256,7 +257,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public Task<WaitImageResult> StartAsync()
         {
             Check();
-            return new WaitImageResult(this).StartAsync();
+            return new WaitImageResult<Bgr, byte>(this).StartAsync();
         }
 
         void Check()
