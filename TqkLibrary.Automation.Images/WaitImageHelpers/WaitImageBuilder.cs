@@ -48,11 +48,19 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         Func<string, int, Bitmap>? _Template;
 
         internal string[] _Finds { get; }
-        internal TapFlag _Tapflag { get; private set; } = TapFlag.First;
-        internal bool _IsThrow { get; private set; } = false;
+        /// <summary>
+        /// 
         /// </summary>
-        internal bool _ResetTimeout { get; private set; } = true;
+        public TapFlag Tapflag { get; private set; } = TapFlag.First;
+        /// <summary>
+        /// 
+        /// </summary>
+        public bool IsThrow { get; private set; } = false;
+        /// <summary>
+        /// 
+        /// </summary>
         public WaitMode WaitMode { get; }
+        internal bool _IsResetTimeout { get; private set; } = true;
         internal TapActionAsyncDelegate? _TapCallbackAsync { get; private set; }
         internal Func<Task>? _BeforeFindAsync { get; private set; }
 
@@ -114,7 +122,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         {
             if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
             this._TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
-            _Tapflag = tapFlag;
+            Tapflag = tapFlag;
             return this;
         }
         /// <summary>
@@ -128,7 +136,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         {
             if (tapActionAsync is null) throw new ArgumentNullException(nameof(tapActionAsync));
             this._TapCallbackAsync = tapActionAsync;
-            _Tapflag = tapFlag;
+            Tapflag = tapFlag;
             return this;
         }
         /// <summary>
@@ -142,7 +150,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         {
             if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
             this._TapCallbackAsync = tapBuilder.HandlerAsync;
-            _Tapflag = tapFlag;
+            Tapflag = tapFlag;
             return this;
         }
 
@@ -213,7 +221,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <returns></returns>
         public WaitImageBuilder WithResetTimeout(bool isResetTimeout)
         {
-            this._ResetTimeout = isResetTimeout;
+            this._IsResetTimeout = isResetTimeout;
             return this;
         }
 
@@ -236,7 +244,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <returns></returns>
         public WaitImageBuilder WithThrow()
         {
-            _IsThrow = true;
+            IsThrow = true;
             return this;
         }
 

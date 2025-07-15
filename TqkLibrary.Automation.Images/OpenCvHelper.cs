@@ -16,37 +16,38 @@ namespace TqkLibrary.Automation.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="mainBitmap"></param>
+        /// <param name="image"></param>
+        /// <param name="template"></param>
         /// <param name="subBitmap"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public static OpenCvFindResult? FindTemplate(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
+        public static OpenCvFindResult? FindTemplate(Bitmap image, Bitmap template, double percent = 0.9)
         {
-            if (subBitmap == null || mainBitmap == null)
+            if (template == null || image == null)
                 return null;
 
-            Size subBitmapSize = subBitmap.Size;
-            if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
+            Size subBitmapSize = template.Size;
+            if (template.Width > image.Width || template.Height > image.Height)
                 return null;
 
-            using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
-            using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
+            using Image<Bgr, byte> sourceBgr = image.ToImage<Bgr, byte>();
+            using Image<Bgr, byte> templateBgr = template.ToImage<Bgr, byte>();
 
-            return FindTemplates(source, template, percent).FirstOrDefault();
+            return FindTemplates(sourceBgr, templateBgr, percent).FirstOrDefault();
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="mainBitmap"></param>
-        /// <param name="subBitmap"></param>
+        /// <param name="image"></param>
+        /// <param name="template"></param>
         /// <param name="crop"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public static OpenCvFindResult? FindTemplate(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop, double percent = 0.9)
+        public static OpenCvFindResult? FindTemplate(Bitmap image, Bitmap template, Rectangle? crop, double percent = 0.9)
         {
-            using Bitmap? bitmapCrop = crop.HasValue ? mainBitmap.CropImage(crop.Value) : null;
-            var result = FindTemplate(bitmapCrop ?? mainBitmap, subBitmap, percent);
+            using Bitmap? bitmapCrop = crop.HasValue ? image.CropImage(crop.Value) : null;
+            var result = FindTemplate(bitmapCrop ?? image, template, percent);
             if (result is not null && crop.HasValue)
             {
                 result.Point = new Point(result.Point.X + crop.Value.X, result.Point.Y + crop.Value.Y);
@@ -57,38 +58,38 @@ namespace TqkLibrary.Automation.Images
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="mainBitmap"></param>
-        /// <param name="subBitmap"></param>
+        /// <param name="image"></param>
+        /// <param name="template"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public static List<OpenCvFindResult> FindTemplates(Bitmap mainBitmap, Bitmap subBitmap, double percent = 0.9)
+        public static IReadOnlyList<OpenCvFindResult> FindTemplates(Bitmap image, Bitmap template, double percent = 0.9)
         {
             List<OpenCvFindResult> results = new List<OpenCvFindResult>();
-            if (subBitmap == null || mainBitmap == null)
+            if (template == null || image == null)
                 return results;
 
-            Size subBitmapSize = subBitmap.Size;
-            if (subBitmap.Width > mainBitmap.Width || subBitmap.Height > mainBitmap.Height)
+            Size subBitmapSize = template.Size;
+            if (template.Width > image.Width || template.Height > image.Height)
                 return results;
 
-            using Image<Bgr, byte> source = mainBitmap.ToImage<Bgr, byte>();
-            using Image<Bgr, byte> template = subBitmap.ToImage<Bgr, byte>();
+            using Image<Bgr, byte> imageBgr = image.ToImage<Bgr, byte>();
+            using Image<Bgr, byte> templateBgr = template.ToImage<Bgr, byte>();
 
-            return FindTemplates(source, template, percent, true);
+            return FindTemplates(imageBgr, templateBgr, percent, true);
         }
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="mainBitmap"></param>
-        /// <param name="subBitmap"></param>
+        /// <param name="image"></param>
+        /// <param name="template"></param>
         /// <param name="crop"></param>
         /// <param name="percent"></param>
         /// <returns></returns>
-        public static List<OpenCvFindResult> FindTemplates(Bitmap mainBitmap, Bitmap subBitmap, Rectangle? crop, double percent = 0.9)
+        public static IReadOnlyList<OpenCvFindResult> FindTemplates(Bitmap image, Bitmap template, Rectangle? crop, double percent = 0.9)
         {
-            using Bitmap? bitmapCrop = crop.HasValue ? mainBitmap.CropImage(crop.Value) : null;
-            List<OpenCvFindResult> results = FindTemplates(bitmapCrop ?? mainBitmap, subBitmap, percent);
+            using Bitmap? bitmapCrop = crop.HasValue ? image.CropImage(crop.Value) : null;
+            IReadOnlyList<OpenCvFindResult> results = FindTemplates(bitmapCrop ?? image, template, percent);
             if (crop.HasValue)
             {
                 for (int i = 0; i < results.Count; i++)
@@ -98,9 +99,6 @@ namespace TqkLibrary.Automation.Images
             }
             return results;
         }
-
-
-
 
 
 
@@ -118,7 +116,7 @@ namespace TqkLibrary.Automation.Images
         /// <param name="templateMatchingType"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static List<OpenCvFindResult> FindTemplates<TColor, TDepth>(
+        public static IReadOnlyList<OpenCvFindResult> FindTemplates<TColor, TDepth>(
             Image<TColor, TDepth> image,
             Image<TColor, TDepth> template,
             double percent = 0.9,
@@ -165,8 +163,5 @@ namespace TqkLibrary.Automation.Images
             }
             return results;
         }
-
-
-
     }
 }

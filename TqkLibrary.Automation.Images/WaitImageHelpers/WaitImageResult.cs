@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Emgu.CV;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
@@ -12,29 +13,43 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
     /// <summary>
     /// 
     /// </summary>
-    public class WaitImageResult
+    public abstract class WaitImageResult
     {
         /// <summary>
         /// 
         /// </summary>
         public IReadOnlyList<WaitImageDataResult> Points { get { return _points; } }
-        readonly List<WaitImageDataResult> _points = new List<WaitImageDataResult>();
-
-
+        protected readonly List<WaitImageDataResult> _points = new List<WaitImageDataResult>();
         /// <summary>
         /// 
         /// </summary>
-        public IReadOnlyList<string> FindNames { get; private set; } = new List<string>();
-        readonly WaitImageBuilder _waitImageBuilder;
+        public IReadOnlyList<string> FindNames { get; protected set; } = new List<string>();
+
+
+        protected readonly WaitImageBuilder _waitImageBuilder;
         internal WaitImageResult(WaitImageBuilder waitImageBuilder)
         {
             this._waitImageBuilder = waitImageBuilder ?? throw new ArgumentNullException(nameof(waitImageBuilder));
         }
+        protected Task<Bitmap> CaptureAsync() => _waitImageBuilder.GetCaptureAsync();
+        protected string _lastFound = string.Empty;
 
-        Task<Bitmap> CaptureAsync() => _waitImageBuilder.GetCaptureAsync();
-        private string _lastFound = string.Empty;
 
-        internal async Task<WaitImageResult> StartAsync()
+        abstract internal Task<WaitImageResult> StartAsync();
+    }
+    /// <summary>
+    /// 
+    /// </summary>
+    public class WaitImageResult<TColor, TDepth> : WaitImageResult
+            where TColor : struct, IColor
+            where TDepth : new()
+    {
+        internal WaitImageResult(WaitImageBuilder waitImageBuilder) : base(waitImageBuilder)
+        {
+
+        }
+
+        internal override async Task<WaitImageResult> StartAsync()
         {
             FindNames = _waitImageBuilder._WaitImageHelper._GlobalNameFindFirst
                 .Concat(_waitImageBuilder._Finds)
@@ -58,23 +73,28 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                         _waitImageBuilder._WaitImageHelper.WriteLog($"{_waitImageBuilder.WaitMode.ToString()} (filter): {string.Join(",", findNamesFilter)}");
                     }
 
+                    using Image<TColor, TDepth> image_capture = bitmap_capture.ToImage<TColor, TDepth>();
                     for (int i = 0; i < findNamesFilter.Count; i++)
                     {
+                        Rectangle? crop = _waitImageBuilder._WaitImageHelper._Crop?.Invoke(findNamesFilter[i]);
+                        if (crop.HasValue && !dict_crops.ContainsKey(findNamesFilter[i]))
+                        {
+                            dict_crops.Add(findNamesFilter[i], crop.Value);
+                        }
+                        using Image<TColor, TDepth> image_capture_crop = crop.HasValue ? image_capture.Copy(crop.Value) : image_capture;
+
+
                         for (int j = 0; ; j++)
                         {
                             using Bitmap bitmap_template = _waitImageBuilder.GetTemplate(findNamesFilter[i], j);
                             if (bitmap_template == null) break;
+                            using Image<TColor, TDepth> image_template = bitmap_template.ToImage<TColor, TDepth>();
 
-                            Rectangle? crop = _waitImageBuilder._WaitImageHelper._Crop?.Invoke(findNamesFilter[i]);
-                            if (crop.HasValue && !dict_crops.ContainsKey(findNamesFilter[i]))
-                            {
-                                dict_crops.Add(findNamesFilter[i], crop.Value);
-                            }
-                            using Bitmap bitmap_capture_crop = crop.HasValue ? bitmap_capture.CropImage(crop.Value) : bitmap_capture;
 
-                            if (_waitImageBuilder._Tapflag == TapFlag.First)
+
+                            if (_waitImageBuilder.Tapflag == TapFlag.First)
                             {
-                                OpenCvFindResult? result = await FindTemplateAsync(bitmap_capture_crop, bitmap_template).ConfigureAwait(false);
+                                OpenCvFindResult? result = await FindTemplateAsync(image_capture_crop, image_template).ConfigureAwait(false);
 
                                 if (result != null)
                                 {
@@ -90,7 +110,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                     if (tapActionShould == ActionShould.Continue)
                                     {
                                         //reset to while
-                                        if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
+                                        if (_waitImageBuilder._IsResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
                                         i = findNamesFilter.Count;//break i
                                         break;//break j
                                     }
@@ -99,7 +119,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                             }
                             else
                             {
-                                var results = await FindTemplatesAsync(bitmap_capture_crop, bitmap_template);
+                                var results = await FindTemplatesAsync(image_capture_crop, image_template);
                                 if (results.Count > 0)
                                 {
                                     if (crop.HasValue)
@@ -119,9 +139,9 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                         }
                     }
 
-                    if (_waitImageBuilder._Tapflag != TapFlag.First && _points.Count > 0)
+                    if (_waitImageBuilder.Tapflag != TapFlag.First && _points.Count > 0)
                     {
-                        switch (_waitImageBuilder._Tapflag)
+                        switch (_waitImageBuilder.Tapflag)
                         {
                             case TapFlag.All:
                                 {
@@ -132,7 +152,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                     }
                                     if (results.All(x => x == ActionShould.Continue))
                                     {
-                                        if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
+                                        if (_waitImageBuilder._IsResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
                                         if (_waitImageBuilder.WaitMode == WaitMode.WaitUntil) _points.Clear();
                                         break;
                                     }
@@ -144,7 +164,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                     ActionShould tapActionShould = await TapAsync(_points[random_index]).ConfigureAwait(false);
                                     if (tapActionShould == ActionShould.Continue)
                                     {
-                                        if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
+                                        if (_waitImageBuilder._IsResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
                                         if (_waitImageBuilder.WaitMode == WaitMode.WaitUntil) _points.Clear();
                                         break;
                                     }
@@ -160,30 +180,24 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                     await _waitImageBuilder._WaitImageHelper._delay(_waitImageBuilder.DelayStep, _waitImageBuilder._WaitImageHelper.CancellationToken);
                 }
             }
-            if (_waitImageBuilder._IsThrow) throw new WaitImageTimeoutException(string.Join("|", FindNames));
+            if (_waitImageBuilder.IsThrow) throw new WaitImageTimeoutException(string.Join("|", FindNames));
             return this;
         }
 
-        private Task<OpenCvFindResult?> FindTemplateAsync(Bitmap mainBitmap, Bitmap subBitmap)
+        private async Task<OpenCvFindResult?> FindTemplateAsync(Image<TColor, TDepth> image, Image<TColor, TDepth> template)
         {
-            if (_waitImageBuilder._WaitImageHelper.FindInThreadPool)
-            {
-                return Task.Run(() => OpenCvHelper.FindTemplate(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
-            }
-            else
-            {
-                return Task.FromResult(OpenCvHelper.FindTemplate(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
-            }
+            var results = await FindTemplatesAsync(image, template, false);
+            return results.FirstOrDefault();
         }
-        private Task<List<OpenCvFindResult>> FindTemplatesAsync(Bitmap mainBitmap, Bitmap subBitmap)
+        private Task<IReadOnlyList<OpenCvFindResult>> FindTemplatesAsync(Image<TColor, TDepth> image, Image<TColor, TDepth> template, bool findAll = true)
         {
             if (_waitImageBuilder._WaitImageHelper.FindInThreadPool)
             {
-                return Task.Run(() => OpenCvHelper.FindTemplates(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
+                return Task.Run(() => OpenCvHelper.FindTemplates(image, template, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke(), findAll));
             }
             else
             {
-                return Task.FromResult(OpenCvHelper.FindTemplates(mainBitmap, subBitmap, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke()));
+                return Task.FromResult(OpenCvHelper.FindTemplates(image, template, _waitImageBuilder._WaitImageHelper._MatchRate.Invoke(), findAll));
             }
         }
 
