@@ -41,7 +41,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                 .Concat(_waitImageBuilder._WaitImageHelper._GlobalNameFindLast)
                 .ToArray();
 
-            _waitImageBuilder._WaitImageHelper.WriteLog($"{(_waitImageBuilder._IsLoop ? "WaitUntil" : "FindImage")} : {string.Join(",", FindNames)}");
+            _waitImageBuilder._WaitImageHelper.WriteLog($"{_waitImageBuilder.WaitMode.ToString()} : {string.Join(",", FindNames)}");
             using (CancellationTokenSource cancellationTokenSource = new CancellationTokenSource(_waitImageBuilder.GetTimeout))
             {
                 while (!cancellationTokenSource.IsCancellationRequested)
@@ -55,7 +55,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                     var findNamesFilter = _waitImageBuilder._ImageNamesFilter?.Invoke(FindNames, _lastFound).ToList() ?? FindNames;
                     if (!Enumerable.SequenceEqual(findNamesFilter, FindNames))
                     {
-                        _waitImageBuilder._WaitImageHelper.WriteLog($"{(_waitImageBuilder._IsLoop ? "WaitUntil" : "FindImage")} (filter): {string.Join(",", findNamesFilter)}");
+                        _waitImageBuilder._WaitImageHelper.WriteLog($"{_waitImageBuilder.WaitMode.ToString()} (filter): {string.Join(",", findNamesFilter)}");
                     }
 
                     for (int i = 0; i < findNamesFilter.Count; i++)
@@ -133,7 +133,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                     if (results.All(x => x == ActionShould.Continue))
                                     {
                                         if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
-                                        if (_waitImageBuilder._IsLoop) _points.Clear();
+                                        if (_waitImageBuilder.WaitMode == WaitMode.WaitUntil) _points.Clear();
                                         break;
                                     }
                                     else return this;
@@ -145,7 +145,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                     if (tapActionShould == ActionShould.Continue)
                                     {
                                         if (_waitImageBuilder._ResetTimeout) cancellationTokenSource.CancelAfter(_waitImageBuilder.GetTimeout);
-                                        if (_waitImageBuilder._IsLoop) _points.Clear();
+                                        if (_waitImageBuilder.WaitMode == WaitMode.WaitUntil) _points.Clear();
                                         break;
                                     }
                                     else return this;
@@ -155,7 +155,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
 
                     DrawDebugRectangle(bitmap_capture, dict_crops);
 
-                    if (!_waitImageBuilder._IsLoop) break;
+                    if (_waitImageBuilder.WaitMode == WaitMode.FindImage) break;
                     await DoAsync().ConfigureAwait(false);
                     await _waitImageBuilder._WaitImageHelper._delay(_waitImageBuilder.DelayStep, _waitImageBuilder._WaitImageHelper.CancellationToken);
                 }

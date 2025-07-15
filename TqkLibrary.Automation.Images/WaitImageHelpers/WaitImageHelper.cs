@@ -250,7 +250,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public WaitImageBuilder WaitUntil(params string[] finds)
         {
             Check();
-            return new WaitImageBuilder(this, true, finds);
+            return new WaitImageBuilder(this, WaitMode.WaitUntil, finds);
         }
         /// <summary>
         /// 
@@ -261,7 +261,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public WaitImageBuilder WaitUntil(TapFlag tapFlag, TapBuilder tapBuilder)
         {
             Check();
-            return new WaitImageBuilder(this, true, tapBuilder.Names.ToArray())
+            return new WaitImageBuilder(this, WaitMode.WaitUntil, tapBuilder.Names.ToArray())
                 .AndTap(tapFlag, tapBuilder);
         }
         /// <summary>
@@ -272,7 +272,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public WaitImageBuilder FindImage(params string[] finds)
         {
             Check();
-            return new WaitImageBuilder(this, false, finds);
+            return new WaitImageBuilder(this, WaitMode.FindImage, finds);
         }
         /// <summary>
         /// 
@@ -283,7 +283,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public WaitImageBuilder FindImage(TapFlag tapFlag, TapBuilder tapBuilder)
         {
             Check();
-            return new WaitImageBuilder(this, false, tapBuilder.Names.ToArray())
+            return new WaitImageBuilder(this, WaitMode.FindImage, tapBuilder.Names.ToArray())
                 .AndTap(tapFlag, tapBuilder);
         }
 

@@ -34,12 +34,12 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
     public class WaitImageBuilder
     {
         internal WaitImageHelper _WaitImageHelper { get; }
-        internal WaitImageBuilder(WaitImageHelper waitImageHelper, bool isLoop, params string[] finds)
+        internal WaitImageBuilder(WaitImageHelper waitImageHelper, WaitMode waitMode, params string[] finds)
         {
             this._Finds = finds ?? throw new ArgumentNullException(nameof(finds));
             if (finds.Length == 0) throw new ArgumentNullException(nameof(finds));
             this._WaitImageHelper = waitImageHelper ?? throw new ArgumentNullException(nameof(waitImageHelper));
-            this._IsLoop = isLoop;
+            this.WaitMode = waitMode;
         }
 
         private int? _Timeout = null;
@@ -50,8 +50,9 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         internal string[] _Finds { get; }
         internal TapFlag _Tapflag { get; private set; } = TapFlag.First;
         internal bool _IsThrow { get; private set; } = false;
-        internal bool _IsLoop { get; } = true;
+        /// </summary>
         internal bool _ResetTimeout { get; private set; } = true;
+        public WaitMode WaitMode { get; }
         internal TapActionAsyncDelegate? _TapCallbackAsync { get; private set; }
         internal Func<Task>? _BeforeFindAsync { get; private set; }
 
