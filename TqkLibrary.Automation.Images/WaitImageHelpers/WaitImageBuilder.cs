@@ -33,13 +33,15 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
     /// <summary>
     /// 
     /// </summary>
-    public abstract class WaitImageBuilder
+    public class WaitImageBuilder<TColor, TDepth>
+            where TColor : struct, IColor
+            where TDepth : new()
     {
-        internal WaitImageHelper WaitImageHelper { get; }
+        internal WaitImageHelper<TColor, TDepth> WaitImageHelper { get; }
         internal WaitMode WaitMode { get; }
         internal string[] Finds { get; }
 
-        internal WaitImageBuilder(WaitImageHelper waitImageHelper, WaitMode waitMode, params string[] finds)
+        internal WaitImageBuilder(WaitImageHelper<TColor, TDepth> waitImageHelper, WaitMode waitMode, params string[] finds)
         {
             this.Finds = finds ?? throw new ArgumentNullException(nameof(finds));
             if (finds.Length == 0) throw new ArgumentNullException(nameof(finds));
@@ -48,15 +50,19 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         }
 
 
-        internal Func<Task<Bitmap>>? CaptureAsync { get; set; }
-        internal Func<string, int, Bitmap>? Template { get; set; }
-        internal int? Timeout { get; set; } = null;
-        internal int? DelayStep { get; set; } = null;
-        internal TapFlag Tapflag { get; set; } = TapFlag.First;
-        internal bool IsThrow { get; set; } = false;
-        internal bool IsResetTimeout { get; set; } = true;
-        internal TapActionAsyncDelegate? TapCallbackAsync { get; set; }
-        internal Func<Task>? BeforeFindAsync { get; set; }
+        internal Func<Task<Bitmap>>? CaptureAsync { get; private set; }
+        internal Func<string, int, Bitmap>? Template { get; private set; }
+        internal int? Timeout { get; private set; } = null;
+        internal int? DelayStep { get; private set; } = null;
+        internal TapFlag Tapflag { get; private set; } = TapFlag.First;
+        internal bool IsThrow { get; private set; } = false;
+        internal bool IsResetTimeout { get; private set; } = true;
+        internal TapActionAsyncDelegate? TapCallbackAsync { get; private set; }
+        internal Func<Task>? BeforeFindAsync { get; private set; }
+        internal ImageNamesFilter? ImageNamesFilter { get; private set; }
+
+
+
 
         internal Task<Bitmap> GetCaptureAsync()
             => (CaptureAsync ?? WaitImageHelper.CaptureAsync ?? throw new InvalidOperationException("Capture is not set"))();
@@ -64,51 +70,38 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             => (Template ?? WaitImageHelper.Template ?? throw new InvalidOperationException("Template is not set"))(name, index);
         internal int GetTimeout { get { return Timeout ?? WaitImageHelper.Timeout(); } }
         internal int GetDelayStep { get { return DelayStep ?? WaitImageHelper.DelayStep; } }
-        internal ImageNamesFilter? ImageNamesFilter { get; set; }
 
 
-        public abstract Task<WaitImageResult> StartAsync();
         protected void Check()
         {
             if (WaitImageHelper.Template is null &&
                 Template is null)
-                throw new InvalidOperationException($"Template must be set via {nameof(WaitImageHelperExtensions)}.{nameof(WaitImageHelperExtensions.WithImageTemplate)} or {nameof(WaitImageBuilderExtensions)}.{nameof(WaitImageBuilderExtensions.WithTemplateSource)}");
+                throw new InvalidOperationException($"Template must be set via {nameof(WaitImageHelper<TColor,TDepth>)}.{nameof(WaitImageHelper<TColor, TDepth>.WithImageTemplate)} or {nameof(WaitImageBuilder<TColor, TDepth>)}.{nameof(WaitImageBuilder<TColor, TDepth>.WithTemplateSource)}");
 
             if (WaitImageHelper.CaptureAsync is null &&
                 this.CaptureAsync is null)
-                throw new InvalidOperationException($"Capture must be set via {nameof(WaitImageHelperExtensions)}.{nameof(WaitImageHelperExtensions.WithCapture)} or {nameof(WaitImageBuilderExtensions)}.{nameof(WaitImageBuilderExtensions.WithCapture)}");
-        }
-    }
-
-    public class WaitImageBuilder<TColor, TDepth> : WaitImageBuilder
-            where TColor : struct, IColor
-            where TDepth : new()
-    {
-        internal WaitImageBuilder(WaitImageHelper<TColor, TDepth> waitImageHelper, WaitMode waitMode, params string[] finds)
-            : base(waitImageHelper, waitMode, finds)
-        {
+                throw new InvalidOperationException($"Capture must be set via {nameof(WaitImageHelper<TColor, TDepth>)}.{nameof(WaitImageHelper<TColor, TDepth>.WithCapture)} or {nameof(WaitImageBuilder<TColor, TDepth>)}.{nameof(WaitImageBuilder<TColor, TDepth>.WithCapture)}");
         }
 
-        public override Task<WaitImageResult> StartAsync()
+        public Task<WaitImageResult<TColor, TDepth>> StartAsync()
         {
             Check();
             return new WaitImageResult<TColor, TDepth>(this).StartAsync();
         }
-    }
 
-    public static class WaitImageBuilderExtensions
-    {
+
+
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="delayStep"></param>
         /// <returns></returns>
-        public static T WithDelayStep<T>(this T t, int delayStep) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithDelayStep(int delayStep) 
         {
             if (delayStep <= 0) throw new ArgumentException($"{nameof(delayStep)} must be large than 0");
-            t.DelayStep = delayStep;
-            return t;
+            this.DelayStep = delayStep;
+            return this;
         }
 
 
@@ -117,21 +110,21 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// </summary>
         /// <param name="capture"></param>
         /// <returns></returns>
-        public static T WithCapture<T>(this T t, Func<Bitmap> capture) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithCapture(Func<Bitmap> capture) 
         {
             if (capture is null) throw new ArgumentNullException(nameof(capture));
-            t.CaptureAsync = () => Task.FromResult(capture.Invoke());
-            return t;
+            this.CaptureAsync = () => Task.FromResult(capture.Invoke());
+            return this;
         }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="capture"></param>
         /// <returns></returns>
-        public static T WithCapture<T>(this T t, Func<Task<Bitmap>> capture) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithCapture(Func<Task<Bitmap>> capture) 
         {
-            t.CaptureAsync = capture ?? throw new ArgumentNullException(nameof(capture));
-            return t;
+            this.CaptureAsync = capture ?? throw new ArgumentNullException(nameof(capture));
+            return this;
         }
 
 
@@ -143,12 +136,12 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <param name="tapAction"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static T AndTap<T>(this T t, TapFlag tapFlag, TapActionDelegate tapAction) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> AndTap(TapFlag tapFlag, TapActionDelegate tapAction) 
         {
             if (tapAction is null) throw new ArgumentNullException(nameof(tapAction));
-            t.TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
-            t.Tapflag = tapFlag;
-            return t;
+            this.TapCallbackAsync = (x) => Task.FromResult(tapAction.Invoke(x));
+            this.Tapflag = tapFlag;
+            return this;
         }
         /// <summary>
         /// 
@@ -157,12 +150,12 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <param name="tapActionAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static T AndTap<T>(this T t, TapFlag tapFlag, TapActionAsyncDelegate tapActionAsync) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> AndTap(TapFlag tapFlag, TapActionAsyncDelegate tapActionAsync) 
         {
             if (tapActionAsync is null) throw new ArgumentNullException(nameof(tapActionAsync));
-            t.TapCallbackAsync = tapActionAsync;
-            t.Tapflag = tapFlag;
-            return t;
+            this.TapCallbackAsync = tapActionAsync;
+            this.Tapflag = tapFlag;
+            return this;
         }
         /// <summary>
         /// 
@@ -171,12 +164,12 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <param name="tapBuilder"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static T AndTap<T>(this T t, TapFlag tapFlag, TapBuilder tapBuilder) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> AndTap(TapFlag tapFlag, TapBuilder tapBuilder) 
         {
             if (tapBuilder is null) throw new ArgumentNullException(nameof(tapBuilder));
-            t.TapCallbackAsync = tapBuilder.HandlerAsync;
-            t.Tapflag = tapFlag;
-            return t;
+            this.TapCallbackAsync = tapBuilder.HandlerAsync;
+            this.Tapflag = tapFlag;
+            return this;
         }
 
 
@@ -188,10 +181,10 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <param name="beforeFindAsync"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static T BeforeFind<T>(this T t, Func<Task> beforeFindAsync) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> BeforeFind(Func<Task> beforeFindAsync) 
         {
-            t.BeforeFindAsync = beforeFindAsync ?? throw new ArgumentNullException(nameof(beforeFindAsync));
-            return t;
+            this.BeforeFindAsync = beforeFindAsync ?? throw new ArgumentNullException(nameof(beforeFindAsync));
+            return this;
         }
         /// <summary>
         /// 
@@ -199,15 +192,15 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <param name="beforeFind"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static T BeforeFind<T>(this T t, Action beforeFind) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> BeforeFind(Action beforeFind) 
         {
             if (beforeFind is null) throw new ArgumentNullException(nameof(beforeFind));
-            t.BeforeFindAsync = () =>
+            this.BeforeFindAsync = () =>
             {
                 beforeFind.Invoke();
                 return Task.CompletedTask;
             };
-            return t;
+            return this;
         }
 
 
@@ -217,10 +210,10 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// <param name="template"></param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public static T WithTemplateSource<T>(this T t, Func<string, int, Bitmap> template) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithTemplateSource(Func<string, int, Bitmap> template) 
         {
-            t.Template = template ?? throw new ArgumentNullException(nameof(template));
-            return t;
+            this.Template = template ?? throw new ArgumentNullException(nameof(template));
+            return this;
         }
 
 
@@ -229,10 +222,10 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// </summary>
         /// <param name="timeout"></param>
         /// <returns></returns>
-        public static T WithTimeout<T>(this T t, int? timeout) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithTimeout(int? timeout) 
         {
-            t.Timeout = timeout;
-            return t;
+            this.Timeout = timeout;
+            return this;
         }
 
 
@@ -241,10 +234,10 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// </summary>
         /// <param name="isResetTimeout"></param>
         /// <returns></returns>
-        public static T WithResetTimeout<T>(this T t, bool isResetTimeout) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithResetTimeout(bool isResetTimeout) 
         {
-            t.IsResetTimeout = isResetTimeout;
-            return t;
+            this.IsResetTimeout = isResetTimeout;
+            return this;
         }
 
 
@@ -253,10 +246,10 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// </summary>
         /// <param name="imageNamesFilter"></param>
         /// <returns></returns>
-        public static T WithImageNamesFilter<T>(this T t, ImageNamesFilter imageNamesFilter) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithImageNamesFilter(ImageNamesFilter imageNamesFilter) 
         {
-            t.ImageNamesFilter = imageNamesFilter;
-            return t;
+            this.ImageNamesFilter = imageNamesFilter;
+            return this;
         }
 
 
@@ -264,10 +257,10 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         /// 
         /// </summary>
         /// <returns></returns>
-        public static T WithThrow<T>(this T t) where T : WaitImageBuilder
+        public WaitImageBuilder<TColor, TDepth> WithThrow() 
         {
-            t.IsThrow = true;
-            return t;
+            this.IsThrow = true;
+            return this;
         }
 
 

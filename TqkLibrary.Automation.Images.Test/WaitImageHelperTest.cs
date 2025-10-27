@@ -26,9 +26,8 @@ namespace TqkLibrary.Automation.Images.Test
         static void TestBuild()
         {
             MyTapHelper tapHelper = new MyTapHelper();
-            
 
-            WaitImageHelperBgr waiter = new WaitImageHelperBgr()
+            var waiter = new WaitImageHelperBgr()
                 .WithCapture(() => new Bitmap(""))
                 .WithCrop((name) => new Rectangle())
                 .WithCustomDelay(Task.Delay)
@@ -36,7 +35,7 @@ namespace TqkLibrary.Automation.Images.Test
                 .WithGlobalNameFindLast("def")
                 .WithMatchRate(() => 0.95)
                 .WithTimeout(() => 30000)
-                .WithImageTemplate((name,index) => new Bitmap(""));
+                .WithImageTemplate((name, index) => new Bitmap(""));
 
             waiter.WaitUntil("abc", "def")
                 .WithThrow()
@@ -45,6 +44,9 @@ namespace TqkLibrary.Automation.Images.Test
                 .WithDelayStep(100)
                 .WithResetTimeout(true)
                 .WithCapture(() => Task.FromResult(new Bitmap("")));
+
+
+            waiter.WaitUntil(TapFlag.First, tapHelper.Build());
         }
     }
 }

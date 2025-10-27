@@ -1,6 +1,7 @@
 ﻿using Emgu.CV;
 using Emgu.CV.Structure;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Text;
@@ -15,7 +16,9 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
     /// <summary>
     /// 
     /// </summary>
-    public abstract class WaitImageHelper
+    public class WaitImageHelper<TColor, TDepth>
+            where TColor : struct, IColor
+            where TDepth : new()
     {
         /// <summary>
         /// Default 500
@@ -54,35 +57,27 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
 
 
 
-        public Func<Task<Bitmap>>? CaptureAsync { get; internal set; }
-        public Func<string, int, Bitmap?>? Template { get; internal set; }
-        public Func<string, Rectangle?>? Crop { get; internal set; }
-        public Func<double> MatchRate { get; internal set; } = () => 0.95;
-        public Func<int> Timeout { get; internal set; } = () => 20000;
-        public IEnumerable<string> GlobalNameFindFirst { get; internal set; } = Enumerable.Empty<string>();
-        public Func<int, CancellationToken, Task> Delay { get; internal set; } = Task.Delay;
-        public IEnumerable<string> GlobalNameFindLast { get; internal set; } = Enumerable.Empty<string>();
+        public Func<Task<Bitmap>>? CaptureAsync { get; private set; }
+        public Func<string, int, Bitmap?>? Template { get; private set; }
+        public Func<string, Rectangle?>? Crop { get; private set; }
+        public Func<double> MatchRate { get; private set; } = () => 0.95;
+        public Func<int> Timeout { get; private set; } = () => 20000;
+        public IEnumerable<string> GlobalNameFindFirst { get; private set; } = Enumerable.Empty<string>();
+        public Func<int, CancellationToken, Task> Delay { get; private set; } = Task.Delay;
+        public IEnumerable<string> GlobalNameFindLast { get; private set; } = Enumerable.Empty<string>();
 
 
 
-        public Action<Bitmap>? DrawDebugRectangle { get; internal set; }
-        public FontFamily? FontFamilyDrawTextDebugRectangle { get; internal set; }
-        public Color ColorDrawDebugRectangle { get; internal set; } = Color.Red;
-        public float ColorDrawDebugFontEmSize { get; internal set; } = 8.0f;
+        public Action<Bitmap>? DrawDebugRectangle { get; private set; }
+        public FontFamily? FontFamilyDrawTextDebugRectangle { get; private set; }
+        public Color ColorDrawDebugRectangle { get; private set; } = Color.Red;
+        public float ColorDrawDebugFontEmSize { get; private set; } = 8.0f;
 
         protected void Check()
         {
         }
-    }
 
-    public class WaitImageHelper<TColor, TDepth> : WaitImageHelper
-            where TColor : struct, IColor
-            where TDepth : new()
-    {
-        public WaitImageHelper(CancellationToken cancellationToken = default) : base(cancellationToken)
-        {
 
-        }
         public WaitImageBuilder<TColor, TDepth> WaitUntil(params string[] finds)
         {
             Check();
@@ -105,97 +100,103 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
             return new WaitImageBuilder<TColor, TDepth>(this, WaitMode.FindImage, tapBuilder.Names.ToArray())
                 .AndTap(tapFlag, tapBuilder);
         }
-    }
 
-    public static class WaitImageHelperExtensions
-    {
-        public static T WithCapture<T>(this T t, Func<Bitmap> capture) where T : WaitImageHelper
+
+
+
+
+
+
+
+
+
+        public WaitImageHelper<TColor, TDepth> WithCapture(Func<Bitmap> capture) 
         {
             if (capture is null) throw new ArgumentNullException(nameof(capture));
-            t.CaptureAsync = () => Task.FromResult(capture.Invoke());
-            return t;
+            this.CaptureAsync = () => Task.FromResult(capture.Invoke());
+            return this;
         }
-        public static T WithCapture<T>(this T t, Func<Task<Bitmap>> capture) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithCapture(Func<Task<Bitmap>> capture) 
         {
-            t.CaptureAsync = capture ?? throw new ArgumentNullException(nameof(capture));
-            return t;
+            this.CaptureAsync = capture ?? throw new ArgumentNullException(nameof(capture));
+            return this;
         }
 
 
-        public static T WithImageTemplate<T>(this T t, Func<string, int, Bitmap> template) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithImageTemplate(Func<string, int, Bitmap> template) 
         {
-            t.Template = template ?? throw new ArgumentNullException(nameof(template));
-            return t;
+            this.Template = template ?? throw new ArgumentNullException(nameof(template));
+            return this;
         }
-        public static T WithImageTemplate<T>(this T t, ImageTemplateHelper imageTemplateHelper) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithImageTemplate(ImageTemplateHelper imageTemplateHelper) 
         {
             if (imageTemplateHelper is null) throw new ArgumentNullException(nameof(imageTemplateHelper));
-            t.Template = imageTemplateHelper.GetImage;
-            return t;
+            this.Template = imageTemplateHelper.GetImage;
+            return this;
         }
 
 
-        public static T WithCrop<T>(this T t, Func<string, Rectangle?> crop) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithCrop(Func<string, Rectangle?> crop) 
         {
-            t.Crop = crop ?? throw new ArgumentNullException(nameof(crop));
-            return t;
+            this.Crop = crop ?? throw new ArgumentNullException(nameof(crop));
+            return this;
         }
 
-        public static T WithMatchRate<T>(this T t, Func<double> matchRate) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithMatchRate(Func<double> matchRate) 
         {
-            t.MatchRate = matchRate ?? throw new ArgumentNullException(nameof(matchRate));
-            return t;
+            this.MatchRate = matchRate ?? throw new ArgumentNullException(nameof(matchRate));
+            return this;
         }
 
-        public static T WithTimeout<T>(this T t, Func<int> timeout) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithTimeout(Func<int> timeout) 
         {
-            t.Timeout = timeout ?? throw new ArgumentNullException(nameof(timeout));
-            return t;
+            this.Timeout = timeout ?? throw new ArgumentNullException(nameof(timeout));
+            return this;
         }
 
-        public static T WithGlobalNameFindFirst<T>(this T t, IEnumerable<string> globalNameFindFirst) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithGlobalNameFindFirst(IEnumerable<string> globalNameFindFirst) 
         {
-            t.GlobalNameFindFirst = globalNameFindFirst ?? throw new ArgumentNullException(nameof(globalNameFindFirst));
-            return t;
+            this.GlobalNameFindFirst = globalNameFindFirst ?? throw new ArgumentNullException(nameof(globalNameFindFirst));
+            return this;
         }
-        public static T WithGlobalNameFindFirst<T>(this T t, params string[] globalNameFindFirst) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithGlobalNameFindFirst(params string[] globalNameFindFirst) 
         {
-            t.GlobalNameFindFirst = globalNameFindFirst ?? throw new ArgumentNullException(nameof(globalNameFindFirst));
-            return t;
-        }
-
-        public static T WithCustomDelay<T>(this T t, Func<int, CancellationToken, Task> delay) where T : WaitImageHelper
-        {
-            t.Delay = delay ?? throw new ArgumentNullException(nameof(delay));
-            return t;
+            this.GlobalNameFindFirst = globalNameFindFirst ?? throw new ArgumentNullException(nameof(globalNameFindFirst));
+            return this;
         }
 
-        public static T WithGlobalNameFindLast<T>(this T t, IEnumerable<string> globalNameFindLast) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithCustomDelay(Func<int, CancellationToken, Task> delay) 
         {
-            t.GlobalNameFindLast = globalNameFindLast ?? throw new ArgumentNullException(nameof(globalNameFindLast));
-            return t;
-        }
-        public static T WithGlobalNameFindLast<T>(this T t, params string[] globalNameFindLast) where T : WaitImageHelper
-        {
-            t.GlobalNameFindLast = globalNameFindLast ?? throw new ArgumentNullException(nameof(globalNameFindLast));
-            return t;
+            this.Delay = delay ?? throw new ArgumentNullException(nameof(delay));
+            return this;
         }
 
-
-        public static T WithDrawDebugRectangle<T>(this T t, Action<Bitmap> drawDebugRectangle, FontFamily? fontFamily = null, Color? color = null, float fontEmSize = 8.0f) where T : WaitImageHelper
+        public WaitImageHelper<TColor, TDepth> WithGlobalNameFindLast(IEnumerable<string> globalNameFindLast) 
         {
-            t.DrawDebugRectangle = drawDebugRectangle ?? throw new ArgumentNullException(nameof(drawDebugRectangle));
-            t.FontFamilyDrawTextDebugRectangle = fontFamily;
-            t.ColorDrawDebugFontEmSize = fontEmSize;
+            this.GlobalNameFindLast = globalNameFindLast ?? throw new ArgumentNullException(nameof(globalNameFindLast));
+            return this;
+        }
+        public WaitImageHelper<TColor, TDepth> WithGlobalNameFindLast(params string[] globalNameFindLast) 
+        {
+            this.GlobalNameFindLast = globalNameFindLast ?? throw new ArgumentNullException(nameof(globalNameFindLast));
+            return this;
+        }
 
-            t.ColorDrawDebugRectangle = color ?? Color.Red;
 
-            if (t.FontFamilyDrawTextDebugRectangle is null)
+        public WaitImageHelper<TColor, TDepth> WithDrawDebugRectangle(Action<Bitmap> drawDebugRectangle, FontFamily? fontFamily = null, Color? color = null, float fontEmSize = 8.0f) 
+        {
+            this.DrawDebugRectangle = drawDebugRectangle ?? throw new ArgumentNullException(nameof(drawDebugRectangle));
+            this.FontFamilyDrawTextDebugRectangle = fontFamily;
+            this.ColorDrawDebugFontEmSize = fontEmSize;
+
+            this.ColorDrawDebugRectangle = color ?? Color.Red;
+
+            if (this.FontFamilyDrawTextDebugRectangle is null)
             {
                 using InstalledFontCollection installedFonts = new InstalledFontCollection();
-                t.FontFamilyDrawTextDebugRectangle = installedFonts.Families.FirstOrDefault();
+                this.FontFamilyDrawTextDebugRectangle = installedFonts.Families.FirstOrDefault();
             }
-            return t;
+            return this;
         }
 
     }

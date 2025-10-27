@@ -13,7 +13,9 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
     /// <summary>
     /// 
     /// </summary>
-    public abstract class WaitImageResult
+    public class WaitImageResult<TColor, TDepth>
+            where TColor : struct, IColor
+            where TDepth : new()
     {
         /// <summary>
         /// 
@@ -26,30 +28,15 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
         public IReadOnlyList<string> FindNames { get; protected set; } = new List<string>();
 
 
-        protected readonly WaitImageBuilder _waitImageBuilder;
-        internal WaitImageResult(WaitImageBuilder waitImageBuilder)
+        protected readonly WaitImageBuilder<TColor, TDepth> _waitImageBuilder;
+        internal WaitImageResult(WaitImageBuilder<TColor, TDepth> waitImageBuilder)
         {
             this._waitImageBuilder = waitImageBuilder ?? throw new ArgumentNullException(nameof(waitImageBuilder));
         }
         protected Task<Bitmap> CaptureAsync() => _waitImageBuilder.GetCaptureAsync();
         protected string _lastFound = string.Empty;
 
-
-        abstract internal Task<WaitImageResult> StartAsync();
-    }
-    /// <summary>
-    /// 
-    /// </summary>
-    public class WaitImageResult<TColor, TDepth> : WaitImageResult
-            where TColor : struct, IColor
-            where TDepth : new()
-    {
-        internal WaitImageResult(WaitImageBuilder waitImageBuilder) : base(waitImageBuilder)
-        {
-
-        }
-
-        internal override async Task<WaitImageResult> StartAsync()
+        internal async Task<WaitImageResult<TColor, TDepth>> StartAsync()
         {
             FindNames = _waitImageBuilder.WaitImageHelper.GlobalNameFindFirst
                 .Concat(_waitImageBuilder.Finds)
@@ -223,7 +210,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                 {
                     try
                     {
-                        WaitImageHelper waitImageHelper = _waitImageBuilder.WaitImageHelper;
+                        WaitImageHelper<TColor, TDepth> waitImageHelper = _waitImageBuilder.WaitImageHelper;
                         using Pen pen = new Pen(waitImageHelper.ColorDrawDebugRectangle);
                         using Brush text_brush = new SolidBrush(waitImageHelper.ColorDrawDebugRectangle);
                         using Font font = new Font(waitImageHelper.FontFamilyDrawTextDebugRectangle, waitImageHelper.ColorDrawDebugFontEmSize);
