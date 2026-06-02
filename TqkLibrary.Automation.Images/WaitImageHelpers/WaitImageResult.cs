@@ -89,7 +89,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                     {
                                         result.Point = new Point(result.Point.X + crop.Value.X, result.Point.Y + crop.Value.Y);
                                     }
-                                    WaitImageDataResult dataResult = new WaitImageDataResult(findNamesFilter[i], result);
+                                    WaitImageDataResult dataResult = new WaitImageDataResult(findNamesFilter[i], j, result);
                                     _points.Add(dataResult);
                                     _waitImageBuilder.WaitImageHelper.WriteLog($"Found: {findNamesFilter[i]}{j} {result}");
                                     _lastFound = findNamesFilter[i];
@@ -120,7 +120,7 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                                     _waitImageBuilder.WaitImageHelper.WriteLog($"Found: {findNamesFilter[i]}{j} {results.Count} points ({string.Join("|", results)})");
                                     _lastFound = findNamesFilter[i];
 
-                                    _points.AddRange(results.Select(x => new WaitImageDataResult(findNamesFilter[i], x)));
+                                    _points.AddRange(results.Select(x => new WaitImageDataResult(findNamesFilter[i], j, x)));
                                 }
                             }
                         }
