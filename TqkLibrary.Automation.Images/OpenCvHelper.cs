@@ -137,7 +137,7 @@ namespace TqkLibrary.Automation.Images
                 return results;
 
             using Image<TColor, TDepth>? clone = findAll ? image.Clone() : null;
-            while (findAll)
+            do
             {
                 using Image<Gray, float> match = (findAll ? clone! : image).MatchTemplate(template, templateMatchingType);
 
@@ -161,6 +161,7 @@ namespace TqkLibrary.Automation.Images
                 }
                 else break;
             }
+            while (findAll);
             return results;
         }
     }
