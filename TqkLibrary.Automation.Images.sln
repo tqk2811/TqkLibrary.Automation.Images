@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TqkLibrary.Media.Images.Tes
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConsoleTest", "ConsoleTest\ConsoleTest.csproj", "{E73E82BC-2A41-4640-8EAC-9F9540F0DC50}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MvcConsoleDemo", "MvcConsoleDemo\MvcConsoleDemo.csproj", "{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,18 @@ Global
 		{E73E82BC-2A41-4640-8EAC-9F9540F0DC50}.Release|x64.Build.0 = Release|Any CPU
 		{E73E82BC-2A41-4640-8EAC-9F9540F0DC50}.Release|x86.ActiveCfg = Release|Any CPU
 		{E73E82BC-2A41-4640-8EAC-9F9540F0DC50}.Release|x86.Build.0 = Release|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Debug|x64.Build.0 = Debug|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Debug|x86.Build.0 = Debug|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Release|x64.ActiveCfg = Release|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Release|x64.Build.0 = Release|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Release|x86.ActiveCfg = Release|Any CPU
+		{3EA2A966-8A9C-4F0B-BD39-A5DCAE75C134}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
