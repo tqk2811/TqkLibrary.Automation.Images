@@ -15,6 +15,7 @@
 				<dependency id="Emgu.CV" version="4.10.0.5680" />
 				<dependency id="Emgu.CV.Bitmap" version="4.10.0.5680" />
 				<dependency id="Emgu.CV.runtime.windows" version="4.10.0.5680" />
+				<dependency id="Microsoft.Extensions.DependencyInjection.Abstractions" version="8.0.2" />
 				<dependency id="Newtonsoft.Json" version="13.0.3" />
 				<dependency id="System.Drawing.Common" version="9.0.5" />
 			</group>

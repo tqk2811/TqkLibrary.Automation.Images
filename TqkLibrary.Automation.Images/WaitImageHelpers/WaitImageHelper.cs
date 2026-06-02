@@ -101,6 +101,15 @@ namespace TqkLibrary.Automation.Images.WaitImageHelpers
                 .AndTap(tapFlag, tapBuilder);
         }
 
+        /// <summary>
+        /// Create an MVC-style image router that reuses this helper's configuration.
+        /// </summary>
+        public MvcHelpers.ImageMvcHelper<TColor, TDepth> Mvc()
+        {
+            Check();
+            return new MvcHelpers.ImageMvcHelper<TColor, TDepth>(this);
+        }
+
 
 
 
